@@ -1,0 +1,29 @@
+<interface>
+
+
+  <rules>
+    <traffic chain="block" job="ACCEPT" state="NEW"></traffic>
+  </rules>
+
+
+  <portforwarding>
+  </portforwarding>
+
+
+  <transproxy>
+  </transproxy>
+
+
+  <logging>
+  </logging>
+
+  <allowping>
+    <traffic chain="INPUT" job="ACCEPT" protocol="icmp"></traffic>
+  </allowping>
+
+  <masquerading>
+    <traffic chain="POSTROUTING" job="MASQUERADE" table="nat"></traffic>
+  </masquerading>
+
+
+</interface>

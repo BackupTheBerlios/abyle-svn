@@ -1,0 +1,20 @@
+<flags>
+<flag cli_arg="-i">interface_iptflag</flag>
+<flag cli_arg="-o">outside_interface_iptflag</flag>
+<flag cli_arg="-N">newchain_iptflag</flag>
+<flag cli_arg="-A">chain_iptflag</flag>
+<flag cli_arg="-j">job_iptflag</flag>
+<flag cli_arg="-m state --state">state_iptflag</flag>
+<flag cli_arg="--source">source_iptflag</flag>
+<flag cli_arg="--sport">source-port_iptflag</flag>
+<flag cli_arg="-p">protocol_iptflag</flag>
+<flag cli_arg="--destination">destination_iptflag</flag>
+<flag cli_arg="--dport">destination-port_iptflag</flag>
+<flag cli_arg="-m multiport">multiport_iptflag</flag>
+<flag cli_arg="--to-destination">todest_iptflag</flag>
+<flag cli_arg="-t">table_iptflag</flag>
+<flag cli_arg="--to-port">toport_iptflag</flag>
+<flag cli_arg="--log-prefix">logprefix_iptflag</flag>
+<flag cli_arg="--tcp-flags">tcpflags_iptflag</flag>
+<flag cli_arg="-m limit --limit">limit_iptflag</flag>
+</flags>

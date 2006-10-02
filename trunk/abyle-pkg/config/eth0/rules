@@ -1,0 +1,44 @@
+<interface>
+
+
+  <rules>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="2222"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="80"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="21"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="25"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="443"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="12345"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="udp" destination="0/0" destination-port="1194"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="udp" destination="0/0" destination-port="1111"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="5555"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="5222"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="udp" destination="0/0" destination-port="5222"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="5223"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="udp" destination="0/0" destination-port="5223"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="5269"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="udp" destination="0/0" destination-port="5269"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="8010"/>
+    <traffic chain="INPUT" job="ACCEPT" state="NEW" source="0/0" protocol="tcp" destination="0/0" destination-port="7777"/>
+  </rules>
+
+
+  <portforwarding>
+  </portforwarding>
+
+
+  <transproxy>
+  </transproxy>
+
+
+  <logging>
+  </logging>
+
+  <allowping>
+    <traffic chain="INPUT" job="ACCEPT" protocol="icmp"></traffic>
+  </allowping>
+
+  <masquerading>
+  </masquerading>
+
+
+</interface>

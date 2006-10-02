@@ -1,0 +1,186 @@
+#!/usr/bin/python2.4
+
+# Copyright (C) 2005  Stefan Nistelberger (scuq@gmx.net)
+# abyle firewall
+# abyle - python iptables config script
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 
+# http://www.gnu.org/licenses/gpl.txt
+
+import os
+import sys
+import re
+import string
+import types
+from optparse import OptionParser
+from abyle_output import abyle_output
+from abyle_firewall import abyle_firewall
+from abyle_config_xmlparser import abyle_config_parse
+from abyle_changelog_xmlparser import abyle_changelog_parse
+
+def flush_chains(table):
+	if table == "all":
+		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
+		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains.")
+		
+		
+
+		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -X')
+		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains.")
+
+
+	else:
+		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -F')
+		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains for table "+table+".")
+		
+		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -X')
+		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains for table "+table+".")
+
+def prepare_firewall(KERNELMODULES):
+	for module in KERNELMODULES:
+		cmdIn, cmdOut, cmdErr = os.popen3(MODPROBE+' -r '+module)
+	abyle_output("prepare_firewall", cmdErr.readlines(), cmdOut.readlines(), "unloaded iptables kernel-modules.")
+
+	for module in KERNELMODULES:
+        	cmdIn, cmdOut, cmdErr = os.popen3(MODPROBE+' '+module)
+	abyle_output("prepare_firewall", cmdErr.readlines(), cmdOut.readlines(), "loaded iptables kernel-modules.")
+
+def getAllInterfaces():
+	cmdIn, cmdOut, cmdErr = os.popen3('cat /proc/net/dev | grep ":" | cut -f1 -d ":"')
+	EXISTING_INTERFACES=[]
+	for int in cmdOut.readlines():
+		int = re.sub("^[^\w]+","",int)
+		int = re.sub("[^\w]+$","",int)
+		int = re.sub("\n$","",int)
+		EXISTING_INTERFACES.append(int)
+	return EXISTING_INTERFACES
+
+
+def main():
+
+	global IPTABLES
+	global MODPROBE
+
+	parser = OptionParser()
+	parser.add_option("-s", "--start", action="store_true", dest="startfw", default=False, help="start the firewall")
+	parser.add_option("-b", "--stop", action="store_true", dest="stopfw", default=False, help="stop (blow out) the firewall")
+	parser.add_option("-d", "--dry-run", action="store_true", dest="dryrunfw", default=False, help="dryrun, dont excecute iptables, use with -s flag")
+	parser.add_option("-i", "--status", action="store_true", dest="statusfw", default=False, help="status of your wall of fire")
+	parser.add_option("-r", "--reload-modules", action="store_true", dest="reloadmod", default=False, help="reload iptables kernel modules")
+	parser.add_option("-v", "--version", action="store_true", dest="version", default=False, help="show version of pyfw modules")
+	parser.add_option("-t", "--install-ifs", action="store_true", dest="install_ifs", default=False, help="install template config for any existing interface")
+	parser.add_option("-p", "--config-path", dest="fwconfigpath", help="path to firewall configuration directory")
+	parser.add_option("-c", "--config-file-name", dest="xmlconfig", help="name of the configuration file")
+
+	(options, args) = parser.parse_args()
+
+
+	if options.fwconfigpath:
+		FWCONFIGPATH = options.fwconfigpath
+	else:
+		FWCONFIGPATH="/etc/abyle/"
+
+	if options.xmlconfig:
+		XMLCONFIG = options.xmlconfig
+	else:
+		XMLCONFIG="config.xml"
+
+	if not os.path.exists(FWCONFIGPATH):
+		abyle_output("cli_option_parser", "", "", "given config path: "+FWCONFIGPATH+" does not exist. exiting with status 2.")
+		sys.exit(2)
+
+	if options.install_ifs:
+		abyle_output("cli_option_parser", "", "", "copy template config for all existing interfaces! existing configs will be moved to "+FWCONFIGPATH+".old" )
+		EXISTING_INTERFACES = getAllInterfaces()
+		for int in EXISTING_INTERFACES:
+			abyle_output("cli_option_parser", "", "", "copy .template to "+int)
+			cmdIn, cmdOut, cmdErr = os.popen3('rm -rf '+FWCONFIGPATH+'.old')
+			cmdIn, cmdOut, cmdErr = os.popen3('mkdir '+FWCONFIGPATH+'.old')
+			cmdIn, cmdOut, cmdErr = os.popen3('mv '+FWCONFIGPATH+int+' '+FWCONFIGPATH+'.old/')
+			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'.template '+int)
+		
+
+	# parse the config file
+	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
+	RULESFILE =  global_config.getConfig("rulesfile")
+	SYNCOOKIE =  global_config.getConfig("syncookie")
+	SYNCOOKIEFILE =  global_config.getConfig("syncookiefile")
+	IPV4FORWARD =  global_config.getConfig("ipv4forward")
+	IPV4FORWARDFILE =  global_config.getConfig("ipv4forwardfile")
+	KERNELMODULES  =  global_config.getConfig("modules")
+	PROTECTED_INTERFACES = global_config.getConfig("interface")
+	MODPROBE = global_config.getConfig("modprobe")
+	IPTABLES = global_config.getConfig("iptables")
+	IPT_XMLCONFIG = global_config.getConfig("iptflagfile")
+	ANTISPOOFINGPATH = global_config.getConfig("antispoofingpath")
+        ANTISPOOFINGFILE = global_config.getConfig("antispoofingfile")
+        ECHOCMD = global_config.getConfig("echocmd")
+	# end parse the config file
+
+	SYNCOOKIE = string.upper(SYNCOOKIE)
+	IPV4FORWARD = string.upper(IPV4FORWARD)
+
+        if SYNCOOKIE == "YES":
+                SYNCOOKIE = SYNCOOKIEFILE
+        else:
+                SYNCOOKIE = "NO"
+
+        if IPV4FORWARD == "YES":
+                IPV4FORWARD = IPV4FORWARDFILE
+        else:
+                IPV4FORWARD = "NO"
+
+	if not options.statusfw and not options.stopfw and not options.reloadmod and not options.startfw and not options.version and not options.dryrunfw and not options.install_ifs:
+		abyle_output("cli_option_parser", "", "", "no options given use --help to get more info")
+	else:
+	
+		if options.statusfw:
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -L -v')
+			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
+
+		if options.stopfw:
+			flush_chains("all")
+			flush_chains("nat")
+
+		if options.reloadmod:
+			prepare_firewall(KERNELMODULES)
+
+		if options.version:
+			changelog = abyle_changelog_parse(FWCONFIGPATH, "changelog.xml")
+			changelog.getChangelog()
+
+		if options.startfw:
+			EXISTING_INTERFACES = getAllInterfaces()
+			for int in EXISTING_INTERFACES:
+				intcnt = PROTECTED_INTERFACES.count(int)
+				if intcnt == 0:
+					abyle_output("pyfwscript_startfw_config_check", "", "", "WARNING!!! interface "+int+" not configured everything will be blocked!")
+
+			fw = abyle_firewall(options.dryrunfw, IPTABLES, FWCONFIGPATH, RULESFILE, SYNCOOKIE, IPV4FORWARD, IPT_XMLCONFIG, XMLCONFIG, ANTISPOOFINGPATH, ANTISPOOFINGFILE, ECHOCMD)
+			PIcnt_max = 0
+			for iface in PROTECTED_INTERFACES:
+				PIcnt_max = PIcnt_max + 1	
+
+			PIcnt = 0
+			for iface in PROTECTED_INTERFACES:
+				PIcnt = PIcnt + 1
+				fw.buildUp(iface)
+			
+				if PIcnt == PIcnt_max:
+					fw.buildUpFinish()
+
+if __name__=='__main__': main()
+

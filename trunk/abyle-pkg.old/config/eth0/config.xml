@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<root>
+  <antispoofing>yes</antispoofing>
+  <logging>no</logging>
+  <allowping>no</allowping>
+  <masquerading>no</masquerading>
+  <portforwarding>yes</portforwarding>
+  <transparent_proxy>no</transparent_proxy>
+</root>
