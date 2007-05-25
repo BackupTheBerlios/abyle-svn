@@ -1,19 +1,21 @@
 <changelog>
-	<cl name="abyle" version="1.01">
+	<cl name="abyle" version="1.02">
 		<log version="0.1">release</log>
 		<log version="0.2">now using xml files, new options added - see --help</log>
 		<log version="0.7">syntax fixing</log>
 		<log version="0.8">added -t option (templates)</log>
 		<log version="1.0">changed version number...</log>
 		<log version="1.01">FIX: tproxy, -i option</log>
+		<log version="1.02">added interface directory check in "/etc/abyle"</log>
 	</cl>
 
-	<cl name="abyle_firewall.py" version="0.2.0">
+	<cl name="abyle_firewall.py" version="0.2.1">
 		<log version="0.1">release</log>
 		<log version="0.1.1">bugfixes</log>
 		<log version="0.1.2">added a few conditions and added allowping parsing</log>
 		<log version="0.1.3">added masquerade parsing</log>
 		<log version="0.2.0">more dynamic, is now using xml config files</log>
+		<log version="0.2.1">added interface directory check in "/etc/abyle"</log>
 	</cl>
 
 	<cl name="abyle_xmlparser.py" version="0.2.1">

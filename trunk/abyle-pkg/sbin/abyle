@@ -177,7 +177,7 @@ def main():
 			PIcnt = 0
 			for iface in PROTECTED_INTERFACES:
 				PIcnt = PIcnt + 1
-				fw.buildUp(iface)
+				fw.buildUp(iface, FWCONFIGPATH)
 			
 				if PIcnt == PIcnt_max:
 					fw.buildUpFinish()
