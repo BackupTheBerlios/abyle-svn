@@ -1,10 +1,11 @@
 <changelog>
-	<cl name="abyle" version="1.0">
+	<cl name="abyle" version="1.01">
 		<log version="0.1">release</log>
 		<log version="0.2">now using xml files, new options added - see --help</log>
 		<log version="0.7">syntax fixing</log>
 		<log version="0.8">added -t option (templates)</log>
 		<log version="1.0">changed version number...</log>
+		<log version="1.01">FIX: tproxy, -i option</log>
 	</cl>
 
 	<cl name="abyle_firewall.py" version="0.2.0">
