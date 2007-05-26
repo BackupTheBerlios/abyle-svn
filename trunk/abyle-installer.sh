@@ -223,6 +223,7 @@ install-abyle() {
 
 	configpath_ok=0
 	configpath_overwrite_ok=0
+	configpath_keep=0
 	while [ "$configpath_ok" -eq 0 ]
 	do
 
@@ -239,26 +240,51 @@ install-abyle() {
                 	echo "$configpath already exists"
 
 
-                        overwritedir="n"
                         echo
                         echo
                         echo -n "do you want to overwrite this directory? [yN]"
 
                         read overwritedir
+	
+			if [ "$overwritedir" =  "" ]
+			then
+				overwritedir="n"
+			fi
 
                         toLower "$overwritedir"
                         overwritedir="$str"
                         str=""
 
                         if [ "$overwritedir" = "y" ]; then
-				#echo "copying config directory to $default_backup_dir."
-				#mkdir $default_backup_dir
-				#mv $configpath/* $default_backup_dir
-                                #echo "deleting directory: $configpath"
-                                #rm -rf $abylesbin
                                 configpath_ok=1
 				configpath_overwrite_ok=1
                         fi
+
+			if [ "$overwritedir" = "n" ]; then
+			
+				echo
+				echo	
+				echo -n "do you want to keep your config directory? [Yn]"
+
+				read keepdir
+
+				if [ "$keepdir" =  "" ]
+				then
+					keepdir="y"
+				fi
+
+				toLower "$keepdir"
+				keepdir="$str"
+				str=""
+
+				if [ "$keepdir" = "y" ]; then
+					configpath_ok=1
+					configpath_keep_ok=1
+				fi
+
+			fi	
+
+
 
 
         	else
@@ -275,7 +301,7 @@ install-abyle() {
 
 ## site-packages
 
-	if [ "$pythonpath_overwrite_ok" -eq "1"]; then
+	if [ "$pythonpath_overwrite_ok" -eq "1" ]; then
 
 		echo "deleting directory: $abyle_python_sitepackagepath."
 		rm -rf $abyle_python_sitepackagepath
@@ -296,7 +322,7 @@ install-abyle() {
 
 ## abyle bin
 
-	if [ "$sbinpath_overwrite_ok" -eq "1"]; then
+	if [ "$sbinpath_overwrite_ok" -eq "1" ]; then
 	
 		echo "deleting file: $abylesbin."
 		rm -rf $abylesbin
@@ -312,8 +338,13 @@ install-abyle() {
 
 ## config
 
+	if [ "$configpath_keep_ok" -eq "1" ]; then
+		echo "keeping your config directory: $configpath."
 
-	if [ "configpath_overwrite_ok" -eq "1"]; then
+	else
+
+
+	if [ "$configpath_overwrite_ok" -eq "1" ]; then
 
 		echo "backuping config files to: $default_backup_dir." 
 		mkdir $default_backup_dir
@@ -330,6 +361,8 @@ install-abyle() {
 		echo "copying default config to: $configpath"
 		mkdir $configpath
 		cp -r $srcpath/config/* $configpath/
+	fi
+
 	fi
 
 	echo "all files should reside on the right place now"	
