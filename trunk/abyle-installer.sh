@@ -1,8 +1,12 @@
 #!/bin/bash
 
+version="0.0.3"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
+
+echo
+
 
 backupUniqueString=`date +"%Y%m%d%H%M%S"`
 
@@ -382,7 +386,7 @@ collect-abyle() {
 	default_python_sitepackagepath="$default_python_sitepackagepath/abyle"
 	while [ "$pythonpath_ok" -eq 0 ]
 	do
-        echo -n "where are your abyle python$python_version site-packages?  ["$default_python_sitepackagepath"]: "
+        echo -n "where are your abyle python site-packages?  ["$default_python_sitepackagepath"]: "
         read python_sitepackagepath
 
         if [ "$python_sitepackagepath" =  "" ]
@@ -471,6 +475,36 @@ collect-abyle() {
 
 }
 
+tarIt() {
+
+	if [ "$1" = "" ]; then
+		pkgVersion=`date +"%Y%m%d_%H%M"`
+	else
+		pkgVersion=$1
+
+	fi
+
+	if [ -d $pkgdir ]; then
+
+		tar cf $progname-"$pkgVersion".tar $pkgdir/
+		bzip2 $progname-"$pkgVersion".tar
+
+		if [ -f $progname-"$pkgVersion".tar.bz2 ]; then
+	
+			echo "$progname-$pkgVersion.tar.bz2 created."
+
+		else
+	
+			echo "tar.bz2 generation failed."
+
+		fi
+		
+
+	fi
+
+
+}
+
 
 case "$1" in
 install)
@@ -479,13 +513,46 @@ install-abyle
 
 mkpkg)
 collect-abyle
+tarIt $2
 ;;
 
-deinstall)
-deinstall-abyle
+uninstall)
+echo "not done yet."
+exit 1
+uninstall-abyle
 ;;
 
 *)
-echo $"Usage: $0 {install|mkpkg|deinstall}"
+
+echo "Welcome to abyle firewall-script installer! (v$version)"
+echo
+echo "License Terms:"
+echo "
+Copyright (C) 2005  Stefan Nistelberger (scuq@gmx.net)
+abyle firewall
+abyle - python iptables config script
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+http://www.gnu.org/licenses/gpl.txt
+"
+echo
+echo
+echo
+
+
+echo $"Usage: $0 {install|mkpkg <version>|uninstall}"
 esac
 
