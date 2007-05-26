@@ -1,8 +1,0 @@
-<root>
-	<antispoofing>no</antispoofing>
-	<logging>no</logging>
-	<allowping>no</allowping>
-	<masquerading>no</masquerading>
-	<portforwarding>no</portforwarding>
-	<transparent_proxy>no</transparent_proxy>
-</root>
