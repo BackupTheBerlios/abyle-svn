@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="0.0.4"
+version="0.0.4.1"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
@@ -226,7 +226,7 @@ install-abyle() {
 
 	configpath_ok=0
 	configpath_overwrite_ok=0
-	configpath_keep=0
+	configpath_keep_ok=0
 	while [ "$configpath_ok" -eq 0 ]
 	do
 
