@@ -633,6 +633,7 @@ uninstall-abyle() {
 case "$1" in
 install)
 install-abyle
+echo "run $progname --help to get some usefull informations."
 ;;
 
 mkpkg)
