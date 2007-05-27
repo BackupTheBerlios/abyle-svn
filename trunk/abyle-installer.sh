@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="0.0.4.1"
+version="0.0.5"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
@@ -20,6 +20,17 @@ toLower() {
 toUpper() {
   str=`echo $1 | tr "[:lower:]" "[:upper:]"` 
 } 
+
+post-install-info() {
+
+echo
+echo "run $progname --help to get some useful informations."
+echo
+echo "if u have installed your config directory in a other location than /etc/abyle"
+echo "you have to append --config-path=/path/to/abyle/config/ to every startup of abyle"
+echo
+
+}
 
 get-distri-pathes() {
 
@@ -354,19 +365,32 @@ install-abyle() {
 
 		echo "backuping config files to: $default_backup_dir." 
 		mkdir $default_backup_dir
-		mv $configpath/* $default_backup_dir
+		mv $configpath/* $default_backup_dir 2> /dev/null
 		echo "deleting directory: $configpath"
 		rm -rf $configpath
 
 		echo "copying default config to: $configpath"
 		mkdir $configpath
 		cp -r $srcpath/config/$global_templatedir/* $configpath/
+		
+		cp -r $srcpath/config/$templatedir $configpath/
+
+		rm -rf $configpath/$templatedir/.svn
+		rm -rf $configpath/$global_templatedir/.svn
+		rm -rf $configpath/$interface_templatedir/.svn
 
 	else
 
 		echo "copying default config to: $configpath"
 		mkdir $configpath
 		cp -r $srcpath/config/$global_templatedir/* $configpath/
+
+		cp -r $srcpath/config/$templatedir $configpath/
+
+		rm -rf $configpath/$templatedir/.svn
+		rm -rf $configpath/$global_templatedir/.svn
+		rm -rf $configpath/$interface_templatedir/.svn
+
 	fi
 
 	fi
@@ -636,7 +660,7 @@ uninstall-abyle() {
 case "$1" in
 install)
 install-abyle
-echo "run $progname --help to get some usefull informations."
+post-install-info
 ;;
 
 mkpkg)
