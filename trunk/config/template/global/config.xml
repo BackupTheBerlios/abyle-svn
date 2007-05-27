@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<root>
+  <iptables>/sbin/iptables</iptables>
+  <modprobe>/sbin/modprobe</modprobe>
+  <echocmd>/bin/echo</echocmd>
+  <antispoofingpath>/proc/sys/net/ipv4/conf/</antispoofingpath>
+  <antispoofingfile>rp_filter</antispoofingfile>
+  <fwconfigpath>/etc/abyle</fwconfigpath>
+  <iptflagfile>iptables_flags.xml</iptflagfile>
+  <rulesfile>rules</rulesfile>
+  <ipv4forwardfile>/proc/sys/net/ipv4/ip_forward</ipv4forwardfile>
+  <syncookiefile>/proc/sys/net/ipv4/tcp_syncookies</syncookiefile>
+  <protect>
+    <interface desc="loopback">lo</interface>
+    <interface desc="public">eth0</interface>
+    <interface desc="vpn-bloodreign">tun0</interface>
+    <interface desc="vpn-openvpnparty">tun1</interface>
+  </protect>
+  <syncookie>yes</syncookie>
+  <ipv4forward>yes</ipv4forward>
+  <kernel>
+    <modules>ipt_multiport</modules>
+    <modules>ip_nat_irc</modules>
+    <modules>ip_nat_ftp</modules>
+    <modules>ip_conntrack_irc</modules>
+    <modules>ip_conntrack_ftp</modules>
+    <modules>iptable_nat</modules>
+    <modules>iptables</modules>
+  </kernel>
+</root>

@@ -1,0 +1,17 @@
+<interface>
+
+  <blockruleshead blockchain="block">
+
+    <traffic chain="block" job="ACCEPT" state="ESTABLISHED,RELATED"></traffic>	
+
+  </blockruleshead>
+
+  <blockrulesfoot>
+
+    <traffic chain="block" job="DROP"></traffic>	
+    <traffic chain="INPUT" job="block"></traffic>	
+    <traffic chain="FORWARD" job="block"></traffic>
+
+  </blockrulesfoot>
+
+</interface>
