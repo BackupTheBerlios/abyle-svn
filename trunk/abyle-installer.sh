@@ -4,6 +4,9 @@ version="0.0.4.1"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
+templatedir="template"
+global_templatedir="$templatedir/global"
+interface_templatedir="$templatedir/interface"
 
 echo
 
@@ -357,13 +360,13 @@ install-abyle() {
 
 		echo "copying default config to: $configpath"
 		mkdir $configpath
-		cp -r $srcpath/config/* $configpath/
+		cp -r $srcpath/config/$global_templatedir/* $configpath/
 
 	else
 
 		echo "copying default config to: $configpath"
 		mkdir $configpath
-		cp -r $srcpath/config/* $configpath/
+		cp -r $srcpath/config/$global_templatedir/* $configpath/
 	fi
 
 	fi
