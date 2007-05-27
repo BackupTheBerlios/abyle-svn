@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="0.0.3"
+version="0.0.4"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
@@ -109,7 +109,6 @@ check-python() {
 		exit 1
 	else
 		python_version=`python -V 2>&1 | sed 's:Python ::' | cut -d. -f1-2`
-		python_version="2.5"
 		echo "Python Version $python_version found."
 	fi
 
