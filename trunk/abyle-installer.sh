@@ -383,7 +383,7 @@ collect-abyle() {
 ### collect python site-packages directory
 
 	pythonpath_ok=0
-	default_python_sitepackagepath="$default_python_sitepackagepath/abyle"
+	default_python_sitepackagepath="$default_python_sitepackagepath/$progname"
 	while [ "$pythonpath_ok" -eq 0 ]
 	do
         echo -n "where are your abyle python site-packages?  ["$default_python_sitepackagepath"]: "
@@ -394,7 +394,7 @@ collect-abyle() {
                 python_sitepackagepath="$default_python_sitepackagepath"
         fi
 
-        abyle_python_sitepackagepath="$python_sitepackagepath/$abyle_sbin_filename"
+        abyle_python_sitepackagepath="$python_sitepackagepath"
         if [ -d "$abyle_python_sitepackagepath" ]
         then
                 echo "$abyle_python_sitepackagepath exists, accepted"
@@ -505,6 +505,131 @@ tarIt() {
 
 }
 
+uninstall-abyle() {
+
+	check-python
+        get-distri
+        get-distri-pathes $distributionType
+
+
+### uninstall python site-packages directory
+
+        pythonpath_ok=0
+        default_python_sitepackagepath="$default_python_sitepackagepath/$progname"
+        while [ "$pythonpath_ok" -eq 0 ]
+        do
+        echo -n "where are your abyle python site-packages?  ["$default_python_sitepackagepath"]: "
+        read python_sitepackagepath
+
+        if [ "$python_sitepackagepath" =  "" ]
+        then
+                python_sitepackagepath="$default_python_sitepackagepath"
+        fi
+
+        abyle_python_sitepackagepath="$python_sitepackagepath"
+        if [ -d "$abyle_python_sitepackagepath" ]
+        then
+                echo "$abyle_python_sitepackagepath exists, accepted"
+                pythonpath_ok=1
+        else
+                echo "$abyle_python_sitepackagepath does not exist"
+        fi
+
+
+        done
+
+### uninstall abyle python script
+
+        sbinpath_ok=0
+        while [ "$sbinpath_ok" -eq 0 ]
+        do
+
+                echo -n "where is the abyle main script? ["$default_sbinpath"]: "
+                read sbinpath
+
+                if [ "$sbinpath" =  "" ]
+                then
+                        sbinpath="$default_sbinpath"
+                fi
+
+                abylesbin="$sbinpath/$progname"
+                if [ -r "$abylesbin" ]
+                then
+                        echo "$abylesbin exists, accepted"
+                        sbinpath_ok=1
+                else
+                        echo "$abylesbin does not exist"
+                fi
+
+        done
+
+### uninstall config directory 
+
+        configpath_ok=0
+	configpath_force_ok=0
+        while [ "$configpath_ok" -eq 0 ]
+        do
+
+                echo -n "where is your configuration directory? ["$default_configpath"]: "
+                read configpath
+
+                if [ "$configpath" =  "" ]
+                then
+                        configpath="$default_configpath"
+                fi
+
+                if [ -d $configpath ]
+                then
+
+                        permanentlydelete="n"
+                        echo
+                        echo
+                        echo -n "do you want to permanently DELETE this directory ($configpath)? [yN]"
+
+                        read permanentlydelete
+
+                        toLower "$permanentlydelete"
+                        permanentlydelete="$str"
+                        str=""
+
+                        if [ "$permanentlydelete" = "y" ]; then
+				configpath_force_ok=1
+				configpath_ok=1
+                        	echo "$configpath, exists accepted"
+                        fi
+
+                else
+                        echo "$configpath does not exist"
+                fi
+
+        done
+
+
+
+#### do the uninstall
+
+
+	if [ "$pythonpath_ok" -eq "1" ]; then
+		echo "deleting $python_sitepackagepath."
+		rm -rf $python_sitepackagepath	
+		echo "deleting $python_sitepackagepath.pth."
+		rm -rf "$python_sitepackagepath.pth"
+	fi
+
+	if [ "$sbinpath_ok" -eq "1" ]; then
+		echo "deleting $abylesbin."
+		rm -rf $abylesbin
+	fi
+
+	if [ "$configpath_force_ok" -eq "1" ]; then
+		echo "deleting $configpath"
+		rm -rf $configpath
+	fi
+	
+
+
+}
+
 
 case "$1" in
 install)
@@ -517,8 +642,6 @@ tarIt $2
 ;;
 
 uninstall)
-echo "not done yet."
-exit 1
 uninstall-abyle
 ;;
 
