@@ -10,6 +10,7 @@
   <rulesfile>rules</rulesfile>
   <ipv4forwardfile>/proc/sys/net/ipv4/ip_forward</ipv4forwardfile>
   <syncookiefile>/proc/sys/net/ipv4/tcp_syncookies</syncookiefile>
+  <logfile>/var/log/abyle.log</logfile>
   <protect>
     <interface desc="loopback">lo</interface>
     <interface desc="public">eth0</interface>
