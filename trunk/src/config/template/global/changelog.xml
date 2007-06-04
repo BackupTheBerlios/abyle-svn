@@ -38,10 +38,11 @@
 		<log version="0.1">release</log>
 	</cl>
 
-	<cl name="abyle_output.py" version="0.3">
+	<cl name="abyle_output.py" version="0.4">
 		<log version="0.1">release</log>
 		<log version="0.2">colorized output</log>
 		<log version="0.3">logfile support</log>
+		<log version="0.4">log2file now in abyle_output</log>
 	</cl>
 
 	<cl name="abyle_docu" version="0.0.1">
