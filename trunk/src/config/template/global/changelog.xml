@@ -1,5 +1,5 @@
 <changelog>
-	<cl name="abyle" version="1.02">
+	<cl name="abyle" version="1.03">
 		<log version="0.1">release</log>
 		<log version="0.2">now using xml files, new options added - see --help</log>
 		<log version="0.7">syntax fixing</log>
@@ -7,6 +7,7 @@
 		<log version="1.0">changed version number...</log>
 		<log version="1.01">FIX: tproxy, -i option</log>
 		<log version="1.02">added interface directory check in "/etc/abyle"</log>
+		<log version="1.03">better output, logfile support</log>
 	</cl>
 
 	<cl name="abyle_firewall.py" version="0.2.1">
@@ -36,9 +37,10 @@
 		<log version="0.1">release</log>
 	</cl>
 
-	<cl name="abyle_output.py" version="0.2">
+	<cl name="abyle_output.py" version="0.3">
 		<log version="0.1">release</log>
 		<log version="0.2">colorized output</log>
+		<log version="0.3">logfile support</log>
 	</cl>
 
 	<cl name="abyle_docu" version="0.0.1">

@@ -80,7 +80,8 @@ def main():
 	parser.add_option("-d", "--dry-run", action="store_true", dest="dryrunfw", default=False, help="dryrun, dont excecute iptables, use with -s flag")
 	parser.add_option("-i", "--status", action="store_true", dest="statusfw", default=False, help="status of your wall of fire")
 	parser.add_option("-r", "--reload-modules", action="store_true", dest="reloadmod", default=False, help="reload iptables kernel modules")
-	parser.add_option("-v", "--version", action="store_true", dest="version", default=False, help="show version of pyfw modules")
+	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="show verbose output of fw startup")
+	parser.add_option("-V", "--version", action="store_true", dest="version", default=False, help="show version of pyfw modules")
 	parser.add_option("-t", "--install-ifs", action="store_true", dest="install_ifs", default=False, help="install template config for any existing interface")
 	parser.add_option("-p", "--config-path", dest="fwconfigpath", help="path to firewall configuration directory")
 	parser.add_option("-c", "--config-file-name", dest="xmlconfig", help="name of the configuration file")
@@ -115,6 +116,7 @@ def main():
 
 	# parse the config file
 	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
+	LOGFILE =  global_config.getConfig("logfile")
 	RULESFILE =  global_config.getConfig("rulesfile")
 	SYNCOOKIE =  global_config.getConfig("syncookie")
 	SYNCOOKIEFILE =  global_config.getConfig("syncookiefile")
@@ -169,7 +171,7 @@ def main():
 				if intcnt == 0:
 					abyle_output("pyfwscript_startfw_config_check", "", "", "WARNING!!! interface "+int+" not configured everything will be blocked!")
 
-			fw = abyle_firewall(options.dryrunfw, IPTABLES, FWCONFIGPATH, RULESFILE, SYNCOOKIE, IPV4FORWARD, IPT_XMLCONFIG, XMLCONFIG, ANTISPOOFINGPATH, ANTISPOOFINGFILE, ECHOCMD)
+			fw = abyle_firewall(options.dryrunfw, IPTABLES, FWCONFIGPATH, RULESFILE, SYNCOOKIE, IPV4FORWARD, IPT_XMLCONFIG, XMLCONFIG, ANTISPOOFINGPATH, ANTISPOOFINGFILE, ECHOCMD, LOGFILE, options.verbose)
 			PIcnt_max = 0
 			for iface in PROTECTED_INTERFACES:
 				PIcnt_max = PIcnt_max + 1	
@@ -177,10 +179,10 @@ def main():
 			PIcnt = 0
 			for iface in PROTECTED_INTERFACES:
 				PIcnt = PIcnt + 1
-				fw.buildUp(iface, FWCONFIGPATH)
+				fw.buildUp(iface, FWCONFIGPATH, options.verbose)
 			
 				if PIcnt == PIcnt_max:
-					fw.buildUpFinish()
+					fw.buildUpFinish(options.verbose)
 
 if __name__=='__main__': main()
 
