@@ -125,7 +125,6 @@ def main():
 			cmdIn, cmdOut, cmdErr = os.popen3('mv '+FWCONFIGPATH+int+' '+FWCONFIGPATH+'.old/'+int)
 			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'template/interface '+FWCONFIGPATH+int)
 		
-
         checkWellformed = check_well_formedness(FWCONFIGPATH+XMLCONFIG)
         if checkWellformed != "ok":
                 abyle_output("","","",checkWellformed, "red")
