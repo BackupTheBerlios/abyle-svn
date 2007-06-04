@@ -8,6 +8,7 @@
 		<log version="1.01">FIX: tproxy, -i option</log>
 		<log version="1.02">added interface directory check in "/etc/abyle"</log>
 		<log version="1.03">better output, logfile support</log>
+		<log version="1.03.1">check_well_formedness()</log>
 	</cl>
 
 	<cl name="abyle_firewall.py" version="0.2.1">

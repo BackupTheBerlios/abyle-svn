@@ -31,6 +31,18 @@ from abyle_firewall import abyle_firewall
 from abyle_config_xmlparser import abyle_config_parse
 from abyle_changelog_xmlparser import abyle_changelog_parse
 
+from xml.sax.handler import ContentHandler
+from xml.sax import make_parser
+
+def check_well_formedness(file):
+        try:
+                saxparser = make_parser()
+                saxparser.setContentHandler(ContentHandler())
+                saxparser.parse(file)
+                return "ok"
+        except Exception, e:
+                return str(file) + " is NOT well-formed! " + str(e)
+
 def flush_chains(table):
 	if table == "all":
 		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
@@ -114,9 +126,17 @@ def main():
 			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'template/interface '+FWCONFIGPATH+int)
 		
 
+        checkWellformed = check_well_formedness(FWCONFIGPATH+XMLCONFIG)
+        if checkWellformed != "ok":
+                abyle_output("","","",checkWellformed, "red")
+                sys.exit(1)
+
 	# parse the config file
 	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
-	LOGFILE =  global_config.getConfig("logfile")
+	try: 
+		LOGFILE =  global_config.getConfig("logfile")
+	except IndexError:
+		LOGFILE = '/dev/null'
 	RULESFILE =  global_config.getConfig("rulesfile")
 	SYNCOOKIE =  global_config.getConfig("syncookie")
 	SYNCOOKIEFILE =  global_config.getConfig("syncookiefile")
@@ -131,6 +151,9 @@ def main():
         ANTISPOOFINGFILE = global_config.getConfig("antispoofingfile")
         ECHOCMD = global_config.getConfig("echocmd")
 	# end parse the config file
+
+	
+	
 
 	SYNCOOKIE = string.upper(SYNCOOKIE)
 	IPV4FORWARD = string.upper(IPV4FORWARD)
