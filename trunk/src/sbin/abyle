@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2005  Stefan Nistelberger (scuq@gmx.net)
+# Copyright (C) 2005  	Stefan Nistelberger (scuq@gmx.net)
+# 			Daniel Schrammel (nowx@gmx.at)
 # abyle firewall
 # abyle - python iptables config script
 # 
