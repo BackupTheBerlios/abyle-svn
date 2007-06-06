@@ -26,12 +26,12 @@ import sys
 import re
 import string
 import types
+import datetime
 from optparse import OptionParser
 from abyle_output import abyle_output
 from abyle_firewall import abyle_firewall
 from abyle_config_xmlparser import abyle_config_parse
 from abyle_changelog_xmlparser import abyle_changelog_parse
-
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 
@@ -44,23 +44,36 @@ def check_well_formedness(file):
         except Exception, e:
                 return str(file) + " is NOT well-formed! " + str(e)
 
-def flush_chains(table):
+def flush_chains(table, LOGFILE, verbose, output):
+	
 	if table == "all":
 		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
-		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains.")
-		
+		if verbose:
+			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains.", "default", LOGFILE)
+		else:
+			output.startup(".")
 		
 
 		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -X')
-		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains.")
-
+		if verbose:
+			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains.", "default", LOGFILE)
+		else:
+			output.startup(".")
 
 	else:
 		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -F')
-		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains for table "+table+".")
+		if verbose:
+			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains for table "+table+".", "default", LOGFILE)
+		else:
+			output.startup(".")
 		
 		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -X')
-		abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains for table "+table+".")
+		if verbose:
+			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains for table "+table+".", "default", LOGFILE)
+		else:
+			output.startup(".")
+
+
 
 def prepare_firewall(KERNELMODULES):
 	for module in KERNELMODULES:
@@ -93,7 +106,7 @@ def main():
 	parser.add_option("-d", "--dry-run", action="store_true", dest="dryrunfw", default=False, help="dryrun, dont excecute iptables, use with -s flag")
 	parser.add_option("-i", "--status", action="store_true", dest="statusfw", default=False, help="status of your wall of fire")
 	parser.add_option("-r", "--reload-modules", action="store_true", dest="reloadmod", default=False, help="reload iptables kernel modules")
-	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="show verbose output of fw startup")
+	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="show verbose output of fw start/stop")
 	parser.add_option("-V", "--version", action="store_true", dest="version", default=False, help="show version of pyfw modules")
 	parser.add_option("-t", "--install-ifs", action="store_true", dest="install_ifs", default=False, help="install template config for any existing interface")
 	parser.add_option("-p", "--config-path", dest="fwconfigpath", help="path to firewall configuration directory")
@@ -177,8 +190,29 @@ def main():
 			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
 
 		if options.stopfw:
-			flush_chains("all")
-			flush_chains("nat")
+			output = abyle_output("","","","","default", LOGFILE)
+			if options.verbose:
+	                	now = datetime.datetime.now()
+	                	now =  now.strftime("%Y/%m/%d %H:%M:%S")
+
+				abyle_output("", "", "", "","blue", LOGFILE)
+				abyle_output("", "", "", "Stopping Firewall","blue", LOGFILE)
+				abyle_output("", "", "", "","blue", LOGFILE)
+				abyle_output("", "", "", "time: "+now,"default", LOGFILE)
+				abyle_output("", "", "", "","blue", LOGFILE)
+			else:
+				output.startup("Stopping Firewall")
+
+			flush_chains("all", LOGFILE, options.verbose, output)
+			flush_chains("nat", LOGFILE, options.verbose, output)
+
+			if not options.verbose:
+				con_size = string.join(os.popen("stty size").readlines())
+				arr_con_size = string.split(con_size," ")
+				size = string.atoi(arr_con_size[1])-13
+				size = size+4
+				a = string.join(os.popen("echo -ne \033[$(("+str(size)+"))G && echo -ne   [DONE] "))
+				output.startup(a, "blue")
 
 		if options.reloadmod:
 			prepare_firewall(KERNELMODULES)
