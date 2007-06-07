@@ -6,7 +6,9 @@ srcpath="src"
 pkgdir="$progname-pkg"
 templatedir="template"
 global_templatedir="$templatedir/global"
+global_configfile="config.xml"
 interface_templatedir="$templatedir/interface"
+networkInterfaces=""
 
 echo
 
@@ -20,6 +22,16 @@ toLower() {
 toUpper() {
   str=`echo $1 | tr "[:lower:]" "[:upper:]"` 
 } 
+
+install-interfaces() {
+  networkInterfaces=`cat /proc/net/dev  | grep ':' | awk -F: '{ print $1 }' |  awk '{ print $1 }'`
+
+#  for interface in $networkInterfaces; do
+
+  cat $configpath/$global_configfile
+	
+
+}
 
 post-install-info() {
 
@@ -372,6 +384,7 @@ install-abyle() {
 		echo "copying default config to: $configpath"
 		mkdir $configpath
 		cp -r $srcpath/config/$global_templatedir/* $configpath/
+
 		
 		cp -r $srcpath/config/$templatedir $configpath/
 
@@ -392,6 +405,8 @@ install-abyle() {
 		rm -rf $configpath/$interface_templatedir/.svn
 
 	fi
+
+	install-interfaces
 
 	fi
 
@@ -661,6 +676,8 @@ case "$1" in
 install)
 install-abyle
 post-install-info
+
+
 ;;
 
 mkpkg)

@@ -12,10 +12,6 @@
   <syncookiefile>/proc/sys/net/ipv4/tcp_syncookies</syncookiefile>
   <logfile>/var/log/abyle.log</logfile>
   <protect>
-    <interface desc="loopback">lo</interface>
-    <interface desc="public">eth0</interface>
-    <interface desc="vpn-bloodreign">tun0</interface>
-    <interface desc="vpn-openvpnparty">tun1</interface>
   </protect>
   <syncookie>yes</syncookie>
   <ipv4forward>yes</ipv4forward>
