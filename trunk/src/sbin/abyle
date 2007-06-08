@@ -94,6 +94,30 @@ def getAllInterfaces():
 		EXISTING_INTERFACES.append(int)
 	return EXISTING_INTERFACES
 
+def stopfw(verbose, LOGFILE):
+	output = abyle_output("","","","","default", LOGFILE)
+	if verbose:
+               	now = datetime.datetime.now()
+              	now =  now.strftime("%Y/%m/%d %H:%M:%S")
+
+		abyle_output("", "", "", "","blue", LOGFILE)
+		abyle_output("", "", "", "Stopping Firewall","blue", LOGFILE)
+		abyle_output("", "", "", "","blue", LOGFILE)
+		abyle_output("", "", "", "time: "+now,"default", LOGFILE)
+		abyle_output("", "", "", "","blue", LOGFILE)
+	else:
+		output.startup("Stopping Firewall")
+
+	flush_chains("all", LOGFILE, verbose, output)
+	flush_chains("nat", LOGFILE, verbose, output)
+
+	if not verbose:
+		con_size = string.join(os.popen("stty size").readlines())
+		arr_con_size = string.split(con_size," ")
+		size = string.atoi(arr_con_size[1])-13
+		size = size+4
+		a = string.join(os.popen("echo -ne \033[$(("+str(size)+"))G && echo -ne   [DONE] "))
+		output.startup(a, "blue", "yes")
 
 def main():
 
@@ -192,29 +216,7 @@ def main():
 			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
 
 		if options.stopfw:
-			output = abyle_output("","","","","default", LOGFILE)
-			if options.verbose:
-	                	now = datetime.datetime.now()
-	                	now =  now.strftime("%Y/%m/%d %H:%M:%S")
-
-				abyle_output("", "", "", "","blue", LOGFILE)
-				abyle_output("", "", "", "Stopping Firewall","blue", LOGFILE)
-				abyle_output("", "", "", "","blue", LOGFILE)
-				abyle_output("", "", "", "time: "+now,"default", LOGFILE)
-				abyle_output("", "", "", "","blue", LOGFILE)
-			else:
-				output.startup("Stopping Firewall")
-
-			flush_chains("all", LOGFILE, options.verbose, output)
-			flush_chains("nat", LOGFILE, options.verbose, output)
-
-			if not options.verbose:
-				con_size = string.join(os.popen("stty size").readlines())
-				arr_con_size = string.split(con_size," ")
-				size = string.atoi(arr_con_size[1])-13
-				size = size+4
-				a = string.join(os.popen("echo -ne \033[$(("+str(size)+"))G && echo -ne   [DONE] "))
-				output.startup(a, "blue")
+			stopfw(options.verbose, LOGFILE)	
 
 		if options.reloadmod:
 			prepare_firewall(KERNELMODULES)
@@ -229,7 +231,7 @@ def main():
 				intcnt = PROTECTED_INTERFACES.count(int)
 				if intcnt == 0:
 					abyle_output("pyfwscript_startfw_config_check", "", "", "WARNING!!! interface "+int+" not configured everything will be blocked!")
-
+			stopfw(options.verbose, LOGFILE)
 			fw = abyle_firewall(options.dryrunfw, IPTABLES, FWCONFIGPATH, RULESFILE, SYNCOOKIE, IPV4FORWARD, IPT_XMLCONFIG, XMLCONFIG, ANTISPOOFINGPATH, ANTISPOOFINGFILE, ECHOCMD, LOGFILE, options.verbose)
 			PIcnt_max = 0
 			for iface in PROTECTED_INTERFACES:
