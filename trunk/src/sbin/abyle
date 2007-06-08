@@ -245,7 +245,7 @@ def main():
 
 	except KeyboardInterrupt:
 		print "Ctrl+C recognized."
-		print "do you know what you are doing??"
+		print "it is not a good idea to disturb a starting wall of fire!"
 
 if __name__=='__main__': main()
 
