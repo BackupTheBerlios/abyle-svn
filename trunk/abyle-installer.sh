@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="0.0.5"
+version="0.0.6"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
@@ -26,9 +26,26 @@ toUpper() {
 install-interfaces() {
   networkInterfaces=`cat /proc/net/dev  | grep ':' | awk -F: '{ print $1 }' |  awk '{ print $1 }'`
 
-#  for interface in $networkInterfaces; do
+  interface_prefix='<interface desc="">'
+  interfaces_suffix='</interface>'
+  interface_del="\n"
 
-  cat $configpath/$global_configfile
+  interfacesXmlString=""
+  tempCnt=0
+
+  for interface in $networkInterfaces; do
+	tempCnt=$[$tempCnt + 1]
+	if [ "$tempCnt" -eq "1" ]; then
+		interfacesXmlString=$interface_prefix$interface$interfaces_suffix	
+	else
+		interfacesXmlString=$interfacesXmlString$interface_del$interface_prefix$interface$interfaces_suffix
+	fi
+  done
+
+
+  cat $configpath/$global_configfile | sed "/<protect>/a $interfacesXmlString" > $configpath/"$global_configfile"1
+  mv $configpath/"$global_configfile"1 $configpath/$global_configfile
+  #cat $configpath/$global_configfile
 	
 
 }
@@ -41,6 +58,11 @@ echo
 echo "if u have installed your config directory in a other location than /etc/abyle"
 echo "you have to append --config-path=/path/to/abyle/config/ to every startup of abyle"
 echo
+echo "the next steps:"
+echo "1)    $progname -t  --->>  install template config which permits any traffic flow, for any existing interface"
+echo "2)    look at your config directory for creating your rules e.g. for eth0:"
+echo "      rulesfile: $configpath/eth0/rules"
+echo "      interface config: $configpath/eth0/config.xml"
 
 }
 

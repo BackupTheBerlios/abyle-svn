@@ -49,4 +49,8 @@
 		<log version="0.0.1">already - outdated</log>
 	</cl>
 
+	<cl name="abyle_installer" version="0.0.6">
+		<log version="0.0.6">RC1, quiet, ok.</log>
+	</cl>
+
 </changelog>
