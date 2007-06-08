@@ -114,22 +114,24 @@ def main():
 
 	(options, args) = parser.parse_args()
 
+	try:
 
-	if options.fwconfigpath:
-		FWCONFIGPATH = options.fwconfigpath
-	else:
+
+	 if options.fwconfigpath:
+	  	FWCONFIGPATH = options.fwconfigpath
+	 else:
 		FWCONFIGPATH="/etc/abyle/"
 
-	if options.xmlconfig:
+	 if options.xmlconfig:
 		XMLCONFIG = options.xmlconfig
-	else:
+	 else:
 		XMLCONFIG="config.xml"
 
-	if not os.path.exists(FWCONFIGPATH):
+	 if not os.path.exists(FWCONFIGPATH):
 		abyle_output("cli_option_parser", "", "", "given config path: "+FWCONFIGPATH+" does not exist. exiting with status 2.")
 		sys.exit(2)
 
-	if options.install_ifs:
+	 if options.install_ifs:
 		abyle_output("cli_option_parser", "", "", "copy template config for all existing interfaces! existing configs will be moved to "+FWCONFIGPATH+".old" )
 		EXISTING_INTERFACES = getAllInterfaces()
 		for int in EXISTING_INTERFACES:
@@ -139,51 +141,51 @@ def main():
 			cmdIn, cmdOut, cmdErr = os.popen3('mv '+FWCONFIGPATH+int+' '+FWCONFIGPATH+'.old/'+int)
 			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'template/interface '+FWCONFIGPATH+int)
 		
-        checkWellformed = check_well_formedness(FWCONFIGPATH+XMLCONFIG)
-        if checkWellformed != "ok":
+         checkWellformed = check_well_formedness(FWCONFIGPATH+XMLCONFIG)
+         if checkWellformed != "ok":
                 abyle_output("","","",checkWellformed, "red")
                 sys.exit(1)
 
 	# parse the config file
-	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
-	try: 
+	 global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
+	 try: 
 		LOGFILE =  global_config.getConfig("logfile")
-	except IndexError:
+	 except IndexError:
 		LOGFILE = '/dev/null'
-	RULESFILE =  global_config.getConfig("rulesfile")
-	SYNCOOKIE =  global_config.getConfig("syncookie")
-	SYNCOOKIEFILE =  global_config.getConfig("syncookiefile")
-	IPV4FORWARD =  global_config.getConfig("ipv4forward")
-	IPV4FORWARDFILE =  global_config.getConfig("ipv4forwardfile")
-	KERNELMODULES  =  global_config.getConfig("modules")
-	PROTECTED_INTERFACES = global_config.getConfig("interface")
-	MODPROBE = global_config.getConfig("modprobe")
-	IPTABLES = global_config.getConfig("iptables")
-	IPT_XMLCONFIG = global_config.getConfig("iptflagfile")
-	ANTISPOOFINGPATH = global_config.getConfig("antispoofingpath")
-        ANTISPOOFINGFILE = global_config.getConfig("antispoofingfile")
-        ECHOCMD = global_config.getConfig("echocmd")
-	# end parse the config file
+	 RULESFILE =  global_config.getConfig("rulesfile")
+	 SYNCOOKIE =  global_config.getConfig("syncookie")
+	 SYNCOOKIEFILE =  global_config.getConfig("syncookiefile")
+	 IPV4FORWARD =  global_config.getConfig("ipv4forward")
+	 IPV4FORWARDFILE =  global_config.getConfig("ipv4forwardfile")
+	 KERNELMODULES  =  global_config.getConfig("modules")
+	 PROTECTED_INTERFACES = global_config.getConfig("interface")
+	 MODPROBE = global_config.getConfig("modprobe")
+	 IPTABLES = global_config.getConfig("iptables")
+	 IPT_XMLCONFIG = global_config.getConfig("iptflagfile")
+	 ANTISPOOFINGPATH = global_config.getConfig("antispoofingpath")
+         ANTISPOOFINGFILE = global_config.getConfig("antispoofingfile")
+         ECHOCMD = global_config.getConfig("echocmd")
+	 # end parse the config file
 
 	
 	
 
-	SYNCOOKIE = string.upper(SYNCOOKIE)
-	IPV4FORWARD = string.upper(IPV4FORWARD)
+	 SYNCOOKIE = string.upper(SYNCOOKIE)
+	 IPV4FORWARD = string.upper(IPV4FORWARD)
 
-        if SYNCOOKIE == "YES":
+         if SYNCOOKIE == "YES":
                 SYNCOOKIE = SYNCOOKIEFILE
-        else:
+         else:
                 SYNCOOKIE = "NO"
 
-        if IPV4FORWARD == "YES":
+         if IPV4FORWARD == "YES":
                 IPV4FORWARD = IPV4FORWARDFILE
-        else:
+         else:
                 IPV4FORWARD = "NO"
 
-	if not options.statusfw and not options.stopfw and not options.reloadmod and not options.startfw and not options.version and not options.dryrunfw and not options.install_ifs:
+	 if not options.statusfw and not options.stopfw and not options.reloadmod and not options.startfw and not options.version and not options.dryrunfw and not options.install_ifs:
 		abyle_output("cli_option_parser", "", "", "no options given use --help to get more info")
-	else:
+	 else:
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L  && '+IPTABLES+' -v -L PREROUTING -t nat')
@@ -240,6 +242,10 @@ def main():
 			
 				if PIcnt == PIcnt_max:
 					fw.buildUpFinish(options.verbose)
+
+	except KeyboardInterrupt:
+		print "Ctrl+C recognized."
+		print "do you know what you are doing??"
 
 if __name__=='__main__': main()
 
