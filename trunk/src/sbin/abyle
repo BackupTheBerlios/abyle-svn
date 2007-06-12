@@ -44,30 +44,33 @@ def check_well_formedness(file):
         except Exception, e:
                 return str(file) + " is NOT well-formed! " + str(e)
 
-def flush_chains(table, LOGFILE, verbose, output):
+def flush_chains(dryrun, table, LOGFILE, verbose, output):
 	
 	if table == "all":
-		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
+		if not dryrun:
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
 		if verbose:
 			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains.", "default", LOGFILE)
 		else:
 			output.startup(".")
 		
-
-		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -X')
+		if not dryrun:
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -X')
 		if verbose:
 			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains.", "default", LOGFILE)
 		else:
 			output.startup(".")
 
 	else:
-		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -F')
+		if not dryrun:
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -F')
 		if verbose:
 			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains for table "+table+".", "default", LOGFILE)
 		else:
 			output.startup(".")
 		
-		cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -X')
+		if not dryrun:
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -X')
 		if verbose:
 			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains for table "+table+".", "default", LOGFILE)
 		else:
@@ -94,7 +97,7 @@ def getAllInterfaces():
 		EXISTING_INTERFACES.append(int)
 	return EXISTING_INTERFACES
 
-def stopfw(verbose, LOGFILE):
+def stopfw(dryrun, verbose, LOGFILE):
 	output = abyle_output("","","","","default", LOGFILE)
 	if verbose:
                	now = datetime.datetime.now()
@@ -108,8 +111,8 @@ def stopfw(verbose, LOGFILE):
 	else:
 		output.startup("Stopping Firewall")
 
-	flush_chains("all", LOGFILE, verbose, output)
-	flush_chains("nat", LOGFILE, verbose, output)
+	flush_chains(dryrun, "all", LOGFILE, verbose, output)
+	flush_chains(dryrun, "nat", LOGFILE, verbose, output)
 
 	if not verbose:
 		con_size = string.join(os.popen("stty size").readlines())
@@ -127,7 +130,7 @@ def main():
 	parser = OptionParser()
 	parser.add_option("-s", "--start", action="store_true", dest="startfw", default=False, help="start the firewall")
 	parser.add_option("-b", "--stop", action="store_true", dest="stopfw", default=False, help="stop (blow out) the firewall")
-	parser.add_option("-d", "--dry-run", action="store_true", dest="dryrunfw", default=False, help="dryrun, dont excecute iptables, use with -s flag")
+	parser.add_option("-d", "--dry-run", action="store_true", dest="dryrunfw", default=False, help="dryrun, dont excecute iptables, use with -s or -b flag")
 	parser.add_option("-i", "--status", action="store_true", dest="statusfw", default=False, help="status of your wall of fire")
 	parser.add_option("-r", "--reload-modules", action="store_true", dest="reloadmod", default=False, help="reload iptables kernel modules")
 	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="show verbose output of fw start/stop")
@@ -216,7 +219,7 @@ def main():
 			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
 
 		if options.stopfw:
-			stopfw(options.verbose, LOGFILE)	
+			stopfw(options.dryrunfw, options.verbose, LOGFILE)	
 
 		if options.reloadmod:
 			prepare_firewall(KERNELMODULES)
@@ -231,7 +234,7 @@ def main():
 				intcnt = PROTECTED_INTERFACES.count(int)
 				if intcnt == 0:
 					abyle_output("pyfwscript_startfw_config_check", "", "", "WARNING!!! interface "+int+" not configured everything will be blocked!")
-			stopfw(options.verbose, LOGFILE)
+			stopfw(options.dryrunfw, options.verbose, LOGFILE)
 			fw = abyle_firewall(options.dryrunfw, IPTABLES, FWCONFIGPATH, RULESFILE, SYNCOOKIE, IPV4FORWARD, IPT_XMLCONFIG, XMLCONFIG, ANTISPOOFINGPATH, ANTISPOOFINGFILE, ECHOCMD, LOGFILE, options.verbose)
 			PIcnt_max = 0
 			for iface in PROTECTED_INTERFACES:
