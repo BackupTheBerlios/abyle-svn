@@ -1,0 +1,1 @@
+/flags/flag[text()="destination"]/@cli_arg
