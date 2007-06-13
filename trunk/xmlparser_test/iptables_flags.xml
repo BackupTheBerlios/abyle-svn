@@ -12,11 +12,11 @@
 <flag cli_arg="--dport" index="12">destination-port</flag>
 <flag cli_arg="-m multiport" index="13">multiport_iptflag</flag>
 <flag cli_arg="--to-destination" index="14">destination_portforwarding</flag>
-<flag cli_arg="-t" index="5">table_iptflag</flag>
-<flag cli_arg="--to-port" index="15">toport_iptflag</flag>
-<flag cli_arg="--log-prefix" index="17">logprefix_iptflag</flag>
-<flag cli_arg="--tcp-flags" index="16">tcpflags_iptflag</flag>
-<flag cli_arg="-m limit --limit" index="18">limit_iptflag</flag>
+<flag cli_arg="-t" index="5">table</flag>
+<flag cli_arg="--to-port" index="15">toport_transproxy</flag>
+<flag cli_arg="--log-prefix" index="17">logprefix</flag>
+<flag cli_arg="--tcp-flags" index="16">tcpflags</flag>
+<flag cli_arg="-m limit --limit" index="18">limit</flag>
 <flag cli_arg="-m recent" index="19">recent_iptflag
 	<update>--update</update>
 	<hitcount>--hitcount</hitcount>

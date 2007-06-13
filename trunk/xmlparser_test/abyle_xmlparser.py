@@ -40,17 +40,17 @@ class abyleparse:
 	def getIpTablesFlags(self):
 		iptflags_dict_temp = {}
 
-		interface_flag = xpath.Evaluate('/flags[flag="interface"]/flag/@cli_arg' , self.iptflags_config)
-		interface_flag = interface_flag[0].firstChild.nodeValue
+		interface_flag = xpath.Evaluate('/flags/flag[text()="interface"]/@cli_arg' , self.iptflags_config)
+		interface_flag = interface_flag[0].value
 
-		portforwarding_destination_flag = xpath.Evaluate('/flags/flag[flag="destination_portforwarding"]' , self.iptflags_config)
-		print portforwarding_destination_flag	
-		sys.exit(1)
-		portforwarding_destination_flag = portforwarding_destination_flag[1].firstChild.nodeValue
-		print "sdfsdfsd "+portforwarding_destination_flag
+		portforwarding_destination_flag = xpath.Evaluate('/flags/flag[text()="destination_portforwarding"]/@cli_arg' , self.iptflags_config)
+		portforwarding_destination_flag = portforwarding_destination_flag[0].value
+
+		transparent_toport_flag = xpath.Evaluate('/flags/flag[text()="toport_transproxy"]/@cli_arg' , self.iptflags_config)
+		transparent_toport_flag = transparent_toport_flag[0].value
 
 		# get all flag nodes by xpath
-		iptflag_nodes = xpath.Evaluate("//flags/flag", self.iptflags_config)
+		iptflag_nodes = xpath.Evaluate("/flags/flag", self.iptflags_config)
 
 		# get all index attributes from flag tag nodes
 		# fill dict with: index -> flag value (e.g. 1 -> interface)
@@ -66,7 +66,7 @@ class abyleparse:
 		indecies = iptflags_dict_temp.keys()
 		indecies.sort(self.compnum)
 
-		return iptflags_dict_temp, indecies, interface_flag, portforwarding_destination_flag
+		return iptflags_dict_temp, indecies, interface_flag, portforwarding_destination_flag, transparent_toport_flag
 
 
 	def flagCheck(self,flagvalue,flagname):
@@ -92,7 +92,8 @@ class abyleparse:
 		# -  a sorted array of all available index numbers e.g: 1,2,3,...,12
 		# -  the iptables cli switch for the interface argument: e.g: -i
 		# -  special flag iptables cli switch for portforwarding destination
-		self.iptflags_dict, self.iptflags_indecies, interface, portfwdDestFlag = self.getIpTablesFlags()
+		# -  transparent proxy to-port flag
+		self.iptflags_dict, self.iptflags_indecies, interface, portfwdDestFlag, transproxyToPortFlag = self.getIpTablesFlags()
 
 		# set the interface string to e.g.: -i eth0
 		self.interfacestr = interface+' '+self.pinterface+' '	
@@ -123,7 +124,7 @@ class abyleparse:
 
 						try:
 						  # parse the file with xpath and get the attributenode cli_arg which has the searched indexNumber
-						  flag_cli_arg_node = xpath.Evaluate("//flags/flag[@index="+indexNumber+"]/@cli_arg", self.iptflags_config)
+						  flag_cli_arg_node = xpath.Evaluate("/flags/flag[@index="+indexNumber+"]/@cli_arg", self.iptflags_config)
 
 						  # extract the value if the attribute node [0] = assuming that the index is unique
 						  flag_cli_arg = flag_cli_arg_node[0].firstChild.nodeValue
@@ -140,6 +141,12 @@ class abyleparse:
 						elif xpathToMainNode.find("portforwarding") > 0 and attribute.name == "destination-port":
 								tempDestPortStr = attribute.value
 
+						elif xpathToMainNode.find("transproxy") > 0 and attribute.name == "destination":
+							tempDestIpStr = attribute.value
+
+						elif xpathToMainNode.find("transproxy") > 0 and attribute.name == "destination-port":
+							tempDestPortStr = attribute.value
+
 						else:
 							# append the temp string to the self.attributestr	
 							self.attributestr = self.attributestr+attributeTmpstr
@@ -150,7 +157,10 @@ class abyleparse:
 			if xpathToMainNode.find("portforwarding") > 0:
 
 				# append interface string to the attribute string
-				self.attributestr = self.interfacestr+self.attributestr+portfwdDestFlag+tempDestIpStr+" "+tempDestPortStr
+				self.attributestr = self.interfacestr+self.attributestr+portfwdDestFlag+' '+tempDestIpStr+":"+tempDestPortStr
+
+			elif xpathToMainNode.find("transproxy") > 0:
+				self.attributestr = self.interfacestr+self.attributestr+transproxyToPortFlag+' '+tempDestPortStr
 
 			else:
 				self.attributestr = self.interfacestr+self.attributestr
@@ -177,138 +187,22 @@ class abyleparse:
 		
 		return  self.rulesarray
 
-		self.iptflags_dict = self.getIpTablesFlags()
-
-		self.interfacestr = self.iptflags_dict["interface_iptflag"]+' '+self.pinterface+' '
-
-                for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        self.portforwarding_level = self.interface.getElementsByTagName("portforwarding")
-
-                        for self.portforwarding in self.portforwarding_level:
-
-                                self.traffic_level = self.portforwarding.getElementsByTagName("traffic")
-
-                                for self.traffic in self.traffic_level:
-
-					self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain_iptflag"])
-					self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job_iptflag"])
-					self.statestr = self.flagCheck(self.traffic.getAttribute("state"),self.iptflags_dict["state_iptflag"])
-					self.sourcestr = self.flagCheck(self.traffic.getAttribute("source"),self.iptflags_dict["source_iptflag"])
-					self.protocolstr = self.flagCheck(self.traffic.getAttribute("protocol"),self.iptflags_dict["protocol_iptflag"])
-
-					self.destinationstr = self.flagCheck(self.traffic.getAttribute("destination"),self.iptflags_dict["todest_iptflag"])
-					self.dportstr = self.flagCheck(self.traffic.getAttribute("destination-port"),"")
-
-					self.tablestr = self.flagCheck(self.traffic.getAttribute("table"),self.iptflags_dict["table_iptflag"])
-					self.forwardportstr = self.flagCheck(self.traffic.getAttribute("forward-port"),self.iptflags_dict["destination-port_iptflag"])
-
-
-					self.destinationstr = re.sub("^[^\w]+","",self.destinationstr)
-                                        self.destinationstr = re.sub("[^\w]+$","",self.destinationstr)
-                                        self.destinationstr = '--'+self.destinationstr
-	                                self.dportstr = re.sub("[^\w]+$","",self.dportstr)
-	                                self.dportstr = re.sub("^[^\w]+","",self.dportstr)
-
-
-					self.iptstr = self.tablestr+ \
-						self.chainstr+ \
-						self.protocolstr+ \
-						self.forwardportstr+ \
-						self.interfacestr+ \
-						self.jobstr+ \
-						self.destinationstr+':'+self.dportstr
-					self.rulesarray.append(self.iptstr)
-
-		return	self.rulesarray
-
-
-
-
 	def getTproxy(self):
 
 		self.rulesarray = []
 
-		self.iptflags_dict = self.getIpTablesFlags()
+		self.rulesarray = self.getAbstractXmlRules("//interface/transproxy/traffic")
 
-		self.interfacestr = self.iptflags_dict["interface_iptflag"]+' '+self.pinterface+' '
+		return self.rulesarray
 
-                for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        self.tproxy_level = self.interface.getElementsByTagName("transproxy")
-
-                        for self.tproxy in self.tproxy_level:
-
-                                self.traffic_level = self.tproxy.getElementsByTagName("traffic")
-
-                                for self.traffic in self.traffic_level:
-
-					self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain_iptflag"])
-					self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job_iptflag"])
-					self.protocolstr = self.flagCheck(self.traffic.getAttribute("protocol"),self.iptflags_dict["protocol_iptflag"])
-					self.dportstr = self.flagCheck(self.traffic.getAttribute("destination-port"),self.iptflags_dict["toport_iptflag"])
-					self.tablestr = self.flagCheck(self.traffic.getAttribute("table"),self.iptflags_dict["table_iptflag"])
-					self.forwardportstr = self.flagCheck(self.traffic.getAttribute("forward-port"),self.iptflags_dict["destination-port_iptflag"])
-
-					self.iptstr = self.tablestr+ \
-						self.chainstr+ \
-						self.interfacestr+ \
-						self.protocolstr+ \
-						self.forwardportstr+ \
-						self.jobstr+ \
-						self.dportstr
-
-					self.rulesarray.append(self.iptstr)
-
-		return	self.rulesarray
 
 	def getLogging(self):
 
 		self.rulesarray = []
 
-		self.iptflags_dict = self.getIpTablesFlags()
+		self.rulesarray = self.getAbstractXmlRules("//interface/logging/traffic")
 
-		self.interfacestr = self.iptflags_dict["interface_iptflag"]+' '+self.pinterface+' '
-
-                for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        self.logging_level = self.interface.getElementsByTagName("logging")
-
-                        for self.logging in self.logging_level:
-
-                                self.log_level = self.logging.getElementsByTagName("traffic")
-
-                                for self.traffic in self.log_level:
-
-					
-					self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain_iptflag"])
-					self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job_iptflag"])
-					self.protocolstr = self.flagCheck(self.traffic.getAttribute("protocol"),self.iptflags_dict["protocol_iptflag"])
-					self.tcpflagsstr = self.flagCheck(self.traffic.getAttribute("tcp-flags"),self.iptflags_dict["tcpflags_iptflag"])
-					self.destinationstr = self.flagCheck(self.traffic.getAttribute("destination"),self.iptflags_dict["destination_iptflag"])
-					self.dportstr = self.flagCheck(self.traffic.getAttribute("destination-port"),self.iptflags_dict["destination-port_iptflag"])
-					self.logprefixstr = self.flagCheck(self.traffic.getAttribute("prefix"),self.iptflags_dict["logprefix_iptflag"])
-					self.limitstr = self.flagCheck(self.traffic.getAttribute("limit"),self.iptflags_dict["limit_iptflag"])
-
-					if re.search('tcp', self.protocolstr):
-						if self.tcpflagsstr:	
-							self.protocolstr = self.protocolstr+' '+self.tcpflagsstr+' '
-
-					if re.search('icmp', self.protocolstr):
-						self.dportstr = ''
-
-					self.iptstr = self.chainstr+ \
-						self.interfacestr+ \
-						self.protocolstr+ \
-						self.destinationstr+ \
-						self.dportstr+ \
-						self.jobstr+ \
-						self.logprefixstr+ \
-						self.limitstr
-
-					self.rulesarray.append(self.iptstr)
-
-		return	self.rulesarray
+		return self.rulesarray
 
 	def getDefaultRules(self, headOrFoot):
 		
