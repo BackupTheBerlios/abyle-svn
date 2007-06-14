@@ -49,6 +49,9 @@ class abyleparse:
 		transparent_toport_flag = xpath.Evaluate('/flags/flag[text()="toport_transproxy"]/@cli_arg' , self.iptflags_config)
 		transparent_toport_flag = transparent_toport_flag[0].value
 
+		outside_interface_flag = xpath.Evaluate('/flags/flag[text()="outside_interface"]/@cli_arg' , self.iptflags_config)
+		outside_interface_flag = outside_interface_flag[0].value
+
 		# get all flag nodes by xpath
 		iptflag_nodes = xpath.Evaluate("/flags/flag", self.iptflags_config)
 
@@ -66,7 +69,7 @@ class abyleparse:
 		indecies = iptflags_dict_temp.keys()
 		indecies.sort(self.compnum)
 
-		return iptflags_dict_temp, indecies, interface_flag, portforwarding_destination_flag, transparent_toport_flag
+		return iptflags_dict_temp, indecies, interface_flag, portforwarding_destination_flag, transparent_toport_flag, outside_interface_flag
 
 
 	def flagCheck(self,flagvalue,flagname):
@@ -93,10 +96,14 @@ class abyleparse:
 		# -  the iptables cli switch for the interface argument: e.g: -i
 		# -  special flag iptables cli switch for portforwarding destination
 		# -  transparent proxy to-port flag
-		self.iptflags_dict, self.iptflags_indecies, interface, portfwdDestFlag, transproxyToPortFlag = self.getIpTablesFlags()
+		# - masquerading interface flag (outside instead of inside)
+		self.iptflags_dict, self.iptflags_indecies, interface, portfwdDestFlag, transproxyToPortFlag, outsideInterfaceFlag = self.getIpTablesFlags()
 
-		# set the interface string to e.g.: -i eth0
-		self.interfacestr = interface+' '+self.pinterface+' '	
+		if xpathToMainNode.find("masquerading") > 0:
+			self.interfacestr = outsideInterfaceFlag+' '+self.pinterface+' '
+		else:
+			# set the interface string to e.g.: -i eth0
+			self.interfacestr = interface+' '+self.pinterface+' '	
 
 		# get list of rules e.g. all traffic nodes or all portforwarding nodes
 		abstractNodes = xpath.Evaluate(xpathToMainNode, self.rules_config)
@@ -200,128 +207,33 @@ class abyleparse:
 
 		self.rulesarray = []
 
-		self.rulesarray = self.getAbstractXmlRules("//interface/logging/traffic")
+		self.rulesarray = self.getAbstractXmlRules("/interface/logging/traffic")
 
 		return self.rulesarray
 
 	def getDefaultRules(self, headOrFoot):
-		
 
-		self.iptflags_dict = self.getIpTablesFlags()
-
-		if headOrFoot == "head":
-			self.rulesarray = []
-			return self.rulesarray
-
-			for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        	self.blockruleshead_level = self.interface.getElementsByTagName("blockruleshead")
-
-                        	for self.blockruleshead in self.blockruleshead_level:
-					self.blockchain = self.blockruleshead.getAttribute("blockchain")
-
-                                	self.traffic_level = self.blockruleshead.getElementsByTagName("traffic")
-
-                                	for self.traffic in self.traffic_level:
-						self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain"])
-						self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job"])
-						self.statestr = self.flagCheck(self.traffic.getAttribute("state"),self.iptflags_dict["state"])
-						self.newchainstr = self.flagCheck(self.blockchain,self.iptflags_dict["newchain"])
-
-						self.rulesarray.append(self.newchainstr)
-
-						self.iptstr = self.chainstr+ \
-							self.statestr+ \
-							self.jobstr
-
-						self.rulesarray.append(self.iptstr)
-
-			return	self.rulesarray
+		self.rulesarray = []
 
 
-		if headOrFoot == "foot":
-			self.rulesarray = []
-
-			for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        	self.blockrulesfoot_level = self.interface.getElementsByTagName("blockrulesfoot")
-
-                        	for self.blockrulesfoot in self.blockrulesfoot_level:
-
-                                	self.traffic_level = self.blockrulesfoot.getElementsByTagName("traffic")
-
-                                	for self.traffic in self.traffic_level:
-						self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain"])
-						self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job"])
-						self.statestr = self.flagCheck(self.traffic.getAttribute("state"),self.iptflags_dict["state"])
-
-						self.iptstr = self.chainstr+ \
-							self.statestr+ \
-							self.jobstr
-
-						self.rulesarray.append(self.iptstr)
-			return	self.rulesarray
-					
+		self.rulesarray = self.getAbstractXmlRules("/interface/blockrules"+headOrFoot+"/traffic")
 
 
+		return self.rulesarray
 
 
 	def getAllowPing(self):
 
 		self.rulesarray = []
 
-		self.iptflags_dict = self.getIpTablesFlags()
+		self.rulesarray = self.getAbstractXmlRules("/interface/allowping/traffic")
 
-		self.interfacestr = self.iptflags_dict["interface_iptflag"]+' '+self.pinterface+' '
-
-                for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        self.allowping_level = self.interface.getElementsByTagName("allowping")
-
-                        for self.allowping in self.allowping_level:
-
-                                self.traffic_level = self.allowping.getElementsByTagName("traffic")
-
-                                for self.traffic in self.traffic_level:
-					self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain"])
-					self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job"])
-					self.protocolstr = self.flagCheck(self.traffic.getAttribute("protocol"),self.iptflags_dict["protocol"])
-
-					self.iptstr = self.chainstr+ \
-						self.interfacestr+ \
-						self.protocolstr+ \
-						self.jobstr
-
-					self.rulesarray.append(self.iptstr)
-
-		return	self.rulesarray
+		return self.rulesarray
 
 	def getMasquerading(self):
 
 		self.rulesarray = []
 
-		self.iptflags_dict = self.getIpTablesFlags()
+		self.rulesarray = self.getAbstractXmlRules("/interface/masquerading/traffic")
 
-		self.interfacestr = self.iptflags_dict["outside_interface_iptflag"]+' '+self.pinterface+' '
-
-                for self.interface in self.rules_config.getElementsByTagName("interface"):
-
-                        self.masquerading_level = self.interface.getElementsByTagName("masquerading")
-
-                        for self.masquerading in self.masquerading_level:
-
-                                self.traffic_level = self.masquerading.getElementsByTagName("traffic")
-
-                                for self.traffic in self.traffic_level:
-					self.chainstr = self.flagCheck(self.traffic.getAttribute("chain"),self.iptflags_dict["chain_iptflag"])
-					self.jobstr = self.flagCheck(self.traffic.getAttribute("job"),self.iptflags_dict["job_iptflag"])
-					self.tablestr = self.flagCheck(self.traffic.getAttribute("table"),self.iptflags_dict["table_iptflag"])
-
-					self.iptstr = self.chainstr+ \
-						self.interfacestr+ \
-						self.tablestr+ \
-						self.jobstr
-
-					self.rulesarray.append(self.iptstr)
-
-		return	self.rulesarray
+		return self.rulesarray
