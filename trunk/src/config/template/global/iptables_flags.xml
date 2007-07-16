@@ -1,20 +1,27 @@
 <flags>
-<flag cli_arg="-i">interface_iptflag</flag>
-<flag cli_arg="-o">outside_interface_iptflag</flag>
-<flag cli_arg="-N">newchain_iptflag</flag>
-<flag cli_arg="-A">chain_iptflag</flag>
-<flag cli_arg="-j">job_iptflag</flag>
-<flag cli_arg="-m state --state">state_iptflag</flag>
-<flag cli_arg="--source">source_iptflag</flag>
-<flag cli_arg="--sport">source-port_iptflag</flag>
-<flag cli_arg="-p">protocol_iptflag</flag>
-<flag cli_arg="--destination">destination_iptflag</flag>
-<flag cli_arg="--dport">destination-port_iptflag</flag>
-<flag cli_arg="-m multiport">multiport_iptflag</flag>
-<flag cli_arg="--to-destination">todest_iptflag</flag>
-<flag cli_arg="-t">table_iptflag</flag>
-<flag cli_arg="--to-port">toport_iptflag</flag>
-<flag cli_arg="--log-prefix">logprefix_iptflag</flag>
-<flag cli_arg="--tcp-flags">tcpflags_iptflag</flag>
-<flag cli_arg="-m limit --limit">limit_iptflag</flag>
+<flag cli_arg="-i" index="1">interface</flag>
+<flag cli_arg="-o" index="2">outside_interface</flag>
+<flag cli_arg="-N" index="3">newchain</flag>
+<flag cli_arg="-A" index="4">chain</flag>
+<flag cli_arg="-j" index="6">job</flag>
+<flag cli_arg="-m state --state" index="7">state</flag>
+<flag cli_arg="--source" index="9">source</flag>
+<flag cli_arg="--sport" index="10">source-port_iptflag</flag>
+<flag cli_arg="-p" index="8">protocol</flag>
+<flag cli_arg="--destination" index="11">destination</flag>
+<flag cli_arg="--dport" index="12">destination-port</flag>
+<flag cli_arg="-m multiport" index="13">multiport_iptflag</flag>
+<flag cli_arg="--to-destination" index="14">destination_portforwarding</flag>
+<flag cli_arg="-t" index="5">table</flag>
+<flag cli_arg="--to-port" index="15">toport_transproxy</flag>
+<flag cli_arg="--log-prefix" index="17">logprefix</flag>
+<flag cli_arg="--tcp-flags" index="16">tcpflags</flag>
+<flag cli_arg="-m limit --limit" index="18">limit</flag>
+<flag cli_arg="-m recent" index="19">recent_iptflag
+	<update>--update</update>
+	<hitcount>--hitcount</hitcount>
+	<name>--name</name>
+	<set>--set</set>
+	<seconds>--seconds</seconds>
+</flag>
 </flags>
