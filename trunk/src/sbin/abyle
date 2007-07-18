@@ -45,34 +45,46 @@ def check_well_formedness(file):
                 return str(file) + " is NOT well-formed! " + str(e)
 
 def flush_chains(dryrun, table, LOGFILE, verbose, output):
+	cmdIn = ""
+	cmdOut = ""
+	cmdErr = ""
 	
 	if table == "all":
+
 		if not dryrun:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
+			cmdErr = cmdErr.readlines()
+			cmdOut = cmdOut.readlines()
 		if verbose:
-			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains.", "default", LOGFILE)
+			abyle_output("flush_chains", cmdErr, cmdOut, "flushed chains.", "default", LOGFILE)
 		else:
 			output.startup(".")
 		
 		if not dryrun:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -X')
+			cmdErr = cmdErr.readlines()
+			cmdOut = cmdOut.readlines()
 		if verbose:
-			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains.", "default", LOGFILE)
+			abyle_output("flush_chains", cmdErr, cmdOut, "deleted chains.", "default", LOGFILE)
 		else:
 			output.startup(".")
 
 	else:
 		if not dryrun:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -F')
+			cmdErr = cmdErr.readlines()
+			cmdOut = cmdOut.readlines()
 		if verbose:
-			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "flushed chains for table "+table+".", "default", LOGFILE)
+			abyle_output("flush_chains", cmdErr, cmdOut, "flushed chains for table "+table+".", "default", LOGFILE)
 		else:
 			output.startup(".")
 		
 		if not dryrun:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -X')
+			cmdErr = cmdErr.readlines()
+			cmdOut = cmdOut.readlines()
 		if verbose:
-			abyle_output("flush_chains", cmdErr.readlines(), cmdOut.readlines(), "deleted chains for table "+table+".", "default", LOGFILE)
+			abyle_output("flush_chains", cmdErr, cmdOut, "deleted chains for table "+table+".", "default", LOGFILE)
 		else:
 			output.startup(".")
 
