@@ -30,6 +30,7 @@ import datetime
 from optparse import OptionParser
 from abyle_output import abyle_output
 from abyle_firewall import abyle_firewall
+from abyle_execute import abyle_execute
 from abyle_config_xmlparser import abyle_config_parse
 from abyle_changelog_xmlparser import abyle_changelog_parse
 from xml.sax.handler import ContentHandler
@@ -45,46 +46,37 @@ def check_well_formedness(file):
                 return str(file) + " is NOT well-formed! " + str(e)
 
 def flush_chains(dryrun, table, LOGFILE, verbose, output):
-	cmdIn = ""
-	cmdOut = ""
-	cmdErr = ""
+
+	executioner = abyle_execute()
 	
 	if table == "all":
+		stdOut, stdErr = executioner.run(IPTABLES+' -F', dryrun)
 
-		if not dryrun:
-			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -F')
-			cmdErr = cmdErr.readlines()
-			cmdOut = cmdOut.readlines()
 		if verbose:
-			abyle_output("flush_chains", cmdErr, cmdOut, "flushed chains.", "default", LOGFILE)
+		   abyle_output("flush_chains", stdErr, stdOut, "flushed chains.", "default", LOGFILE)
+			
 		else:
 			output.startup(".")
 		
-		if not dryrun:
-			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -X')
-			cmdErr = cmdErr.readlines()
-			cmdOut = cmdOut.readlines()
+		stdOut, stdErr = executioner.run(IPTABLES+' -X', dryrun)
+
 		if verbose:
-			abyle_output("flush_chains", cmdErr, cmdOut, "deleted chains.", "default", LOGFILE)
+		    	abyle_output("flush_chains", stdErr, stdOut, "deleted chains.", "default", LOGFILE)
 		else:
 			output.startup(".")
 
 	else:
-		if not dryrun:
-			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -F')
-			cmdErr = cmdErr.readlines()
-			cmdOut = cmdOut.readlines()
+		stdOut, stdErr = executioner.run(IPTABLES+' -t '+table+' -F', dryrun)
+
 		if verbose:
-			abyle_output("flush_chains", cmdErr, cmdOut, "flushed chains for table "+table+".", "default", LOGFILE)
+			abyle_output("flush_chains", stdErr, stdOut, "flushed chains for table "+table+".", "default", LOGFILE)
 		else:
 			output.startup(".")
 		
-		if not dryrun:
-			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -t '+table+' -X')
-			cmdErr = cmdErr.readlines()
-			cmdOut = cmdOut.readlines()
+		stdOut, stdErr = executioner.run(IPTABLES+' -t '+table+' -X', dryrun)
+
 		if verbose:
-			abyle_output("flush_chains", cmdErr, cmdOut, "deleted chains for table "+table+".", "default", LOGFILE)
+			abyle_output("flush_chains", stdErr, stdOut, "deleted chains for table "+table+".", "default", LOGFILE)
 		else:
 			output.startup(".")
 
@@ -92,12 +84,12 @@ def flush_chains(dryrun, table, LOGFILE, verbose, output):
 
 def prepare_firewall(KERNELMODULES):
 	for module in KERNELMODULES:
-		cmdIn, cmdOut, cmdErr = os.popen3(MODPROBE+' -r '+module)
-	abyle_output("prepare_firewall", cmdErr.readlines(), cmdOut.readlines(), "unloaded iptables kernel-modules.")
+		stdOut, stdErr = executioner.run(MODPROBE+' -r '+module, dryrun)
+	abyle_output("prepare_firewall", "", "", "unloaded iptables kernel-modules.")
 
 	for module in KERNELMODULES:
-        	cmdIn, cmdOut, cmdErr = os.popen3(MODPROBE+' '+module)
-	abyle_output("prepare_firewall", cmdErr.readlines(), cmdOut.readlines(), "loaded iptables kernel-modules.")
+		stdOut, stdErr = executioner.run(MODPROBE+' '+module, dryrun)
+	abyle_output("prepare_firewall", "", "", "loaded iptables kernel-modules.")
 
 def getAllInterfaces():
 	cmdIn, cmdOut, cmdErr = os.popen3('cat /proc/net/dev | grep ":" | cut -f1 -d ":"')
