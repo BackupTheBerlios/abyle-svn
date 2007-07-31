@@ -73,10 +73,10 @@
 
 	<flag index="19">
 		<cfgname cli_switch="-m recent" value="no">recent</cfgname>
-		<subflag cli_switch="--update" value="yes">update</subflag>
+		<subflag cli_switch="--name" value="yes">name</subflag>
+		<subflag cli_switch="--update" value="no">update</subflag>
 		<subflag cli_switch="--seconds" value="yes">seconds</subflag>
 		<subflag cli_switch="--hitcount" value="yes">hitcount</subflag>
-		<subflag cli_switch="--name" value="yes">name</subflag>
 		<subflag cli_switch="--set" value="no">set</subflag>
 	</flag>
 
