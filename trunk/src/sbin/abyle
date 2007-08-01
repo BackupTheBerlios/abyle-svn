@@ -185,6 +185,11 @@ def main():
 	 global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
 	 try: 
 		LOGFILE =  global_config.getConfig("logfile")
+		if os.path.exists(LOGFILE):
+			LOGFILE_len = os.stat(LOGFILE)[6]
+			if LOGFILE_len > 1000000:
+				os.remove(LOGFILE)
+
 	 except IndexError:
 		LOGFILE = '/dev/null'
 	 RULESFILE =  global_config.getConfig("rulesfile")
