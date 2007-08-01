@@ -43,6 +43,10 @@
 		<cfgname cli_switch="--dport" value="yes">destination-port</cfgname>
 	</flag>
 
+	<flag index="20">
+		<cfgname cli_switch="--dport" value="yes">forward-port</cfgname>
+	</flag>
+
 	<flag index="13">
 		<cfgname cli_switch="-m multiport" value="no">multiport_iptflag</cfgname>
 	</flag>
@@ -71,13 +75,14 @@
 		<cfgname cli_switch="-m limit --limit" value="yes">limit</cfgname>
 	</flag>
 
-	<flag index="19">
-		<cfgname cli_switch="-m recent" value="no">recent</cfgname>
-		<subflag cli_switch="--name" value="yes">name</subflag>
-		<subflag cli_switch="--update" value="no">update</subflag>
-		<subflag cli_switch="--seconds" value="yes">seconds</subflag>
-		<subflag cli_switch="--hitcount" value="yes">hitcount</subflag>
-		<subflag cli_switch="--set" value="no">set</subflag>
-	</flag>
+        <flag index="19">
+                <cfgname cli_switch="-m recent" value="no">recent</cfgname>
+                <subflag cli_switch="--name" value="yes">name</subflag>
+                <subflag cli_switch="--update" value="no">update</subflag>
+                <subflag cli_switch="--seconds" value="yes">seconds</subflag>
+                <subflag cli_switch="--hitcount" value="yes">hitcount</subflag>
+                <subflag cli_switch="--set" value="no">set</subflag>
+        </flag>
+
 
 </flags>
