@@ -14,4 +14,8 @@
 
   </blockrulesfoot>
 
+  <excluderule>
+    <traffic chain="INPUT" job="ACCEPT"></traffic>
+  </excluderule>
+
 </interface>
