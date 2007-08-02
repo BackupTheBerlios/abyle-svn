@@ -84,7 +84,10 @@ def flush_chains(dryrun, table, LOGFILE, verbose, output):
 
 
 # preparing stuff, like loading kernel modules
-def prepare_firewall(KERNELMODULES):
+def prepare_firewall(dryrun, KERNELMODULES):
+
+	executioner = abyle_execute()
+
 	for module in KERNELMODULES:
 		stdOut, stdErr = executioner.run(MODPROBE+' -r '+module, dryrun)
 	abyle_output("prepare_firewall", "", "", "unloaded iptables kernel-modules.")
@@ -219,7 +222,7 @@ def main():
 			stopfw(options.dryrunfw, options.verbose, LOGFILE)	
 
 		if options.reloadmod:
-			prepare_firewall(KERNELMODULES)
+			prepare_firewall(options.dryrunfw, KERNELMODULES)
 
 		if options.version:
 			changelog = abyle_changelog_parse(FWCONFIGPATH, "changelog.xml")
