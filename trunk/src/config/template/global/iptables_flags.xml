@@ -75,6 +75,10 @@
 		<cfgname cli_switch="-m limit --limit" value="yes">limit</cfgname>
 	</flag>
 
+       <flag index="21">
+                <cfgname cli_switch="--icmp-type" value="yes">icmp-type</cfgname>
+        </flag>
+
         <flag index="19">
                 <cfgname cli_switch="-m recent" value="no">recent</cfgname>
                 <subflag cli_switch="--name" value="yes">name</subflag>

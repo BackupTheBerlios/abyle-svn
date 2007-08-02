@@ -18,4 +18,11 @@
     <traffic chain="INPUT" job="ACCEPT"></traffic>
   </excluderule>
 
+  <pingrule>
+    <traffic chain="INPUT" job="ACCEPT" protocol="icmp" icmp-type="echo-request"></traffic>
+    <traffic chain="INPUT" job="ACCEPT" protocol="icmp" icmp-type="echo-reply"></traffic>
+    <traffic chain="INPUT" job="ACCEPT" protocol="icmp" icmp-type="time-exceeded"></traffic>
+    <traffic chain="INPUT" job="ACCEPT" protocol="icmp" icmp-type="destination-unreachable"></traffic>
+  </pingrule>
+
 </interface>
