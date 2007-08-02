@@ -7,8 +7,8 @@
   <portforwarding>
   </portforwarding>
 
-  <transproxy>
-  </transproxy>
+  <transparentproxy>
+  </transparentproxy>
 
   <logging>
   </logging>
