@@ -208,9 +208,13 @@ def main():
 	 else:
 	
 		if options.statusfw:
-			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L  && '+IPTABLES+' -v -L PREROUTING -t nat && '+IPTABLES+' -v -L POSTROUTING -t nat' )
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')
 			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
-
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L PREROUTING -t nat')
+			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
+			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L POSTROUTING -t nat')
+			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
+			
 		if options.stopfw:
 			stopfw(options.dryrunfw, options.verbose, LOGFILE)	
 
