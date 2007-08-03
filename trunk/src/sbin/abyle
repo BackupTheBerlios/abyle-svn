@@ -84,10 +84,7 @@ def flush_chains(dryrun, table, LOGFILE, verbose, output):
 
 
 # preparing stuff, like loading kernel modules
-def prepare_firewall(dryrun, KERNELMODULES):
-
-	executioner = abyle_execute()
-
+def prepare_firewall(KERNELMODULES):
 	for module in KERNELMODULES:
 		stdOut, stdErr = executioner.run(MODPROBE+' -r '+module, dryrun)
 	abyle_output("prepare_firewall", "", "", "unloaded iptables kernel-modules.")
@@ -186,11 +183,12 @@ def main():
 
 	# parse the config file
 	 global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
+	 MAX_LOGFILE_SIZE = global_config.getConfig("max_logfile_size")
 	 try: 
-		LOGFILE =  global_config.getConfig("logfile")
+		LOGFILE = global_config.getConfig("logfile")
 		if os.path.exists(LOGFILE):
-			LOGFILE_len = os.stat(LOGFILE)[6]
-			if LOGFILE_len > 1000000:
+			LOGFILE_size = os.path.getsize(LOGFILE)
+			if long(LOGFILE_size) > long(MAX_LOGFILE_SIZE):
 				os.remove(LOGFILE)
 
 	 except IndexError:
@@ -212,7 +210,11 @@ def main():
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')
-			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
+			cmdOut_tmp = cmdOut.readlines()
+			if cmdOut_tmp.find('Chain'):
+				abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut_tmp, "iptables -L -v -- failed??", "green")
+			else:
+				abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut_tmp, "iptables -L -v -- failed??",)
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L PREROUTING -t nat')
 			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L POSTROUTING -t nat')
@@ -222,7 +224,7 @@ def main():
 			stopfw(options.dryrunfw, options.verbose, LOGFILE)	
 
 		if options.reloadmod:
-			prepare_firewall(options.dryrunfw, KERNELMODULES)
+			prepare_firewall(KERNELMODULES)
 
 		if options.version:
 			changelog = abyle_changelog_parse(FWCONFIGPATH, "changelog.xml")

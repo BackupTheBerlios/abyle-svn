@@ -19,7 +19,8 @@
   <martiansfile>log_martians</martiansfile>                             <!-- logs packets from impossible addresses -->
   <tcpabortfile>/proc/sys/net/ipv4/tcp_abort_on_overflow</tcpabortfile> <!-- reset tcp connection if buffer is full -->
   <bootprelayfile>bootp_relay</bootprelayfile>                          <!-- drops packets from 0.0.0.0/8 -->
-  <logfile>/var/log/abyle.log</logfile>
+  <logfile>/var/log/abyle.log</logfile>                                 <!-- logfile for abyle firewall -->
+  <max_logfile_size>1000000</max_logfile_size>                          <!-- will be removed if larger than 1M -->
   <protect>
   </protect>
   <syncookie>yes</syncookie>
