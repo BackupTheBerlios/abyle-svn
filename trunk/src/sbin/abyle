@@ -210,11 +210,7 @@ def main():
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')
-			cmdOut_tmp = cmdOut.readlines()
-			if cmdOut_tmp.find('Chain'):
-				abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut_tmp, "iptables -L -v -- failed??", "green")
-			else:
-				abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut_tmp, "iptables -L -v -- failed??",)
+			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L PREROUTING -t nat')
 			abyle_output("cli_option_parser", cmdErr.readlines(), cmdOut.readlines(), "iptables -L -v -- failed??")
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L POSTROUTING -t nat')
