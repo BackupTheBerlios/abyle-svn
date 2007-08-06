@@ -138,6 +138,8 @@ def stopfw(dryrun, verbose, LOGFILE):
 
 def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 
+   try:
+
 	output = abyle_output("","","","","default", LOGFILE)
 
 	if not verbose:	
@@ -265,7 +267,7 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
         		
 			if c:
             			command = command + c
-				#print command
+				print command
 				if valid_commands_dict.keys().count(command) > 0:
 					if verbose:
 						abyle_output("abyle_main_frontendDaemon", "", "", "detected valid command on input fifo: "+command, "green")
@@ -274,10 +276,20 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 					command = ""
 					os.close(ff)
 					break
+
+				if command.endswith(";"):
+					command = ""
+					os.close(ff)
+					break
 				
         		else:
             			os.close(ff)
             			break
+
+
+   except KeyboardInterrupt:
+	print "Ctrl+C recognized."
+	print "daemon stopped!"
 	
 
 
