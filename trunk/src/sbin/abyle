@@ -36,6 +36,10 @@ from abyle_changelog_xmlparser import abyle_changelog_parse
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 
+# uid and gid checking
+from pwd import getpwnam
+from grp import getgrnam
+
 # check if xml is wellformed, before reading it, i'm using the saxparser for this 
 def check_well_formedness(file):
         try:
@@ -130,6 +134,72 @@ def stopfw(dryrun, verbose, LOGFILE):
 		a = string.join(os.popen("echo -n \033[$(("+str(size)+"))G && echo -n   [DONE] "))
 		output.startup(a, "blue", "yes")
 
+
+def frontendDaemon(FWCONFIGPATH, XMLCONFIG):
+
+	print "frontendDaemon"
+	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
+        try:
+                fifoPath = global_config.getConfig("fifopath")
+	except IndexError:
+		fifoPath = "/var/run/abyle"
+
+	try:
+		frontendUser = global_config.getConfig("frontenduser")
+	except IndexError:
+                abyle_output("abyle_main_frontendDaemon", "Error no <frontenduser> specified in global config: "+FWCONFIGPATH+XMLCONFIG,"","", "red")
+		sys.exit(1)
+
+	try:
+		frontendGroup = global_config.getConfig("frontendgroup")
+	except IndexError:
+                abyle_output("abyle_main_frontendDaemon", "Error no <frontendgroup> specified in global config: "+FWCONFIGPATH+XMLCONFIG,"","", "red")
+		sys.exit(1)
+
+	try:
+		frontendUid = getpwnam(frontendUser)[2]
+	except KeyError:
+		abyle_output("abyle_main_frontendDaemon", "Frontend User: "+frontendUser+" doesn't exist.","","", "red")
+		sys.exit(1)
+
+	abyle_output("abyle_main_frontendDaemon", "", "Frontend User: "+frontendUser+" ("+str(frontendUid)+")","", "green")
+
+	try:
+		frontendGid = getgrnam(frontendGroup)[2]
+	except KeyError:
+		abyle_output("abyle_main_frontendDaemon", "Frontend Group: "+frontendGroup+" doesn't exist.","","", "red")
+		sys.exit(1)
+
+	abyle_output("abyle_main_frontendDaemon", "", "Frontend Group: "+frontendGroup+" ("+str(frontendGid)+")","", "green")
+
+	if not os.path.exists(fifoPath):
+		os.makedirs(fifoPath, mode=0770)
+
+	os.chown(fifoPath, frontendUid, frontendGid)
+	abyle_output("abyle_main_frontendDaemon", "", "changed ownerchip of "+fifoPath+" to "+frontendUser+":"+frontendGroup,"", "green")
+
+	os.chmod(fifoPath, 0770)
+	abyle_output("abyle_main_frontendDaemon", "", "changed permissions of "+fifoPath+" to 0770", "green")
+
+	if not os.path.exists(fifoPath+"/input"):
+		os.mkfifo(fifoPath+"/input") 
+
+	if not os.path.exists(fifoPath+"/output"):
+		os.mkfifo(fifoPath+"/output") 
+
+	abyle_output("abyle_main_frontendDaemon", "", "created fifo's: "+fifoPath+"/input and "+fifoPath+"/output", "green")
+
+	os.chown(fifoPath+"/input", frontendUid, frontendGid)
+	os.chown(fifoPath+"/output", frontendUid, frontendGid)
+
+	abyle_output("abyle_main_frontendDaemon", "", "changed ownerchip of fifo's to "+frontendUser+":"+frontendGroup,"", "green")
+
+	os.chmod(fifoPath+"/input", 0770)
+	os.chmod(fifoPath+"/output", 0770)
+
+	abyle_output("abyle_main_frontendDaemon", "", "changed permissions of fifo's to 0770", "green")
+
+
 def main():
 
 	global IPTABLES
@@ -142,12 +212,15 @@ def main():
 	parser.add_option("-i", "--status", action="store_true", dest="statusfw", default=False, help="status of your wall of fire")
 	parser.add_option("-r", "--reload-modules", action="store_true", dest="reloadmod", default=False, help="reload iptables kernel modules")
 	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="show verbose output of fw start/stop")
+	parser.add_option("-D", "--daemon", action="store_true", dest="daemon", default=False, help="start daemon for abyle frontend!")
 	parser.add_option("-V", "--version", action="store_true", dest="version", default=False, help="show version of pyfw modules")
 	parser.add_option("-t", "--install-ifs", action="store_true", dest="install_ifs", default=False, help="install template config for any existing interface")
 	parser.add_option("-p", "--config-path", dest="fwconfigpath", help="path to firewall configuration directory")
 	parser.add_option("-c", "--config-file-name", dest="xmlconfig", help="name of the configuration file")
 
 	(options, args) = parser.parse_args()
+
+
 
 	try:
 
@@ -204,9 +277,12 @@ def main():
 	 # end parse the config file
 
 
-	 if not options.statusfw and not options.stopfw and not options.reloadmod and not options.startfw and not options.version and not options.dryrunfw and not options.install_ifs:
+	 if not options.statusfw and not options.stopfw and not options.reloadmod and not options.startfw and not options.version and not options.dryrunfw and not options.install_ifs and not options.daemon:
 		abyle_output("cli_option_parser", "", "", "no options given use --help to get more info")
 	 else:
+
+		if options.daemon:
+			frontendDaemon(FWCONFIGPATH, XMLCONFIG)
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')

@@ -21,6 +21,9 @@
   <bootprelayfile>bootp_relay</bootprelayfile>                          <!-- drops packets from 0.0.0.0/8 -->
   <logfile>/var/log/abyle.log</logfile>                                 <!-- logfile for abyle firewall -->
   <max_logfile_size>1000000</max_logfile_size>                          <!-- will be removed if larger than 1M -->
+  <fifopath>/var/run/abyle</fifopath>
+  <frontenduser>www-data</frontenduser>
+  <frontendgroup>www-data</frontendgroup>
   <protect>
   </protect>
   <syncookie>yes</syncookie>
