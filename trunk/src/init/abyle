@@ -1,7 +1,10 @@
 #! /bin/bash
 
-export pidfile="/var/run/abyle/abyled.pid"
-export globalconfig="/etc/abyle/config.xml"
+
+#export globalconfig="/etc/abyle/config.xml"
+export fifodir=`cat $globalconfig |grep "<fifopath>" | sed s/"<fifopath>"// | sed s/"<\/fifopath>"// | awk '{sub(/^[ \t]+/, ""); print}'`
+export pidfile=$fifodir"/abyled.pid"
+export logfile=`cat $globalconfig |grep "<daemonlogfile>" | sed s/"<daemonlogfile>"// | sed s/"<\/daemonlogfile>"// | awk '{sub(/^[ \t]+/, ""); print}'`
 
 start_abyle() {
 	abyle -s
@@ -13,7 +16,7 @@ start_abyle_daemon() {
 		echo "frontendDaemon is disabled in config."
 	else
 		echo "starting frontendDaemon."
-		abyle -D > /var/log/abyled.log 2>&1 &
+		abyle -D > $logfile 2>&1 &
 		sleep 2
 	fi
 }

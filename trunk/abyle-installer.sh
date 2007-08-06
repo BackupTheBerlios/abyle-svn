@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="0.0.6"
+version="0.0.7"
 progname="abyle"
 srcpath="src"
 pkgdir="$progname-pkg"
@@ -63,6 +63,7 @@ echo "1)    $progname -t  --->>  install template config which permits any traff
 echo "2)    look at your config directory for creating your rules e.g. for eth0:"
 echo "      rulesfile: $configpath/eth0/rules"
 echo "      interface config: $configpath/eth0/config.xml"
+echo "3)    <path to your runlevel scripts>/$progname (start|stop|restart) --> for starting at system boot"
 
 }
 
@@ -75,6 +76,7 @@ get-distri-pathes() {
 		default_abyle_bin='abyle'
 		default_python_sitepackagepath="/usr/local/lib/python"$python_version"/site-packages"
 		default_backup_dir="/var/backups/$progname.$backupUniqueString/"
+		default_initdpath='/etc/init.d'
         ;;
 
         ubuntu)
@@ -83,6 +85,7 @@ get-distri-pathes() {
                 default_abyle_bin='abyle'
                 default_python_sitepackagepath="/usr/local/lib/python"$python_version"/site-packages"
 		default_backup_dir="/var/backups/$progname.$backupUniqueString/"
+		default_initdpath='/etc/init.d'
         ;;
 
         *)
@@ -91,6 +94,7 @@ get-distri-pathes() {
                 default_abyle_bin='abyle'
                 default_python_sitepackagepath="/usr/local/lib/python"$python_version"/site-packages"
 		default_backup_dir="/tmp/$progname.$backupUniqueString/"
+		default_initdpath='/etc/init.d'
         esac
 	
 
@@ -347,6 +351,53 @@ install-abyle() {
 
 ### END install config directory
 
+### install init.d script
+
+	initdpath_ok=0
+	initdscript_overwrite_ok=0
+	while [ "$initdpath_ok" -eq 0 ]
+	do
+
+        	echo -n "enter the location of your runlevel scripts ["$default_initdpath"]: "
+        	read initdpath
+
+        	if [ "$initdpath" =  "" ]
+        	then
+                	initdpath="$default_initdpath"
+        	fi
+
+        	if [ -d $initdpath ]
+        	then
+                	echo "$initdpath exists, ok."
+
+
+			if [ -r "$initdpath/$progname" ]
+			then
+                        	echo -n "do you want to overwrite this runlevel script? [yN]"
+				read overwrite_initdscript
+
+				if [ "$overwrite_initdscript" =  "" ]
+				then
+					overwrite_initdscript="n"
+				fi
+
+				toLower "$overwrite_initdscript"
+				overwrite_initdscript="$str"
+				str=""
+
+				if [ "$overwrite_initdscript" = "y" ]; then
+					initdscript_overwrite_ok=1
+				fi
+
+			fi
+			
+                	initdpath_ok=1
+        	fi
+
+	done
+### END install init.d script
+
+
 
 ### do the install job
 
@@ -430,6 +481,26 @@ install-abyle() {
 
 	install-interfaces
 
+	fi
+
+## abyle init.d scrpt
+
+	if [ "$initdscript_overwrite_ok" -eq "1" ]; then
+	
+		echo "deleting file: $initdpath/$progname."
+		rm -f $initdpath/$progname
+
+		echo "copying new abyle script file to: $initdpath/$progname"
+		cat $srcpath/init/$progname | sed "/bash/a export globalconfig=$configpath/$global_configfile" > "$initdpath/$progname"
+		chmod +x "$initdpath/$progname"
+
+		
+
+	else
+
+		echo "copying new abyle script file to: $initdpath/$progname"
+		cat $srcpath/init/$progname | sed "/bash/a export globalconfig=$configpath/$global_configfile" > "$initdpath/$progname"
+		chmod +x "$initdpath/$progname"
 	fi
 
 	echo "all files should reside on the right place now"	

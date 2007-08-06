@@ -52,7 +52,8 @@
   </kernel>
   <frontend>
     <daemon>
-	<daemonenabled>yes</daemonenabled>
+	<daemonenabled>no</daemonenabled>
+	<daemonlogfile>/var/log/abyled.log</daemonlogfile>
         <input>
           <commandmap>
                 <inputcmd>restart</inputcmd>
