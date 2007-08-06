@@ -52,6 +52,7 @@
   </kernel>
   <frontend>
     <daemon>
+	<daemonenabled>yes</daemonenabled>
         <input>
           <commandmap>
                 <inputcmd>restart</inputcmd>
