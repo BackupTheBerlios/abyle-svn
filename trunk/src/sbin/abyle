@@ -135,9 +135,13 @@ def stopfw(dryrun, verbose, LOGFILE):
 		output.startup(a, "blue", "yes")
 
 
-def frontendDaemon(FWCONFIGPATH, XMLCONFIG):
+def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 
-	print "frontendDaemon"
+	output = abyle_output("","","","","default", LOGFILE)
+	
+	output.startup("starting frontend daemon ")
+
+
 	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
         try:
                 fifoPath = global_config.getConfig("fifopath")
@@ -162,7 +166,10 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG):
 		abyle_output("abyle_main_frontendDaemon", "Frontend User: "+frontendUser+" doesn't exist.","","", "red")
 		sys.exit(1)
 
-	abyle_output("abyle_main_frontendDaemon", "", "Frontend User: "+frontendUser+" ("+str(frontendUid)+")","", "green")
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "Frontend User: "+frontendUser+" ("+str(frontendUid)+")", "green")
+	else:
+		output.startup(".")
 
 	try:
 		frontendGid = getgrnam(frontendGroup)[2]
@@ -170,16 +177,27 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG):
 		abyle_output("abyle_main_frontendDaemon", "Frontend Group: "+frontendGroup+" doesn't exist.","","", "red")
 		sys.exit(1)
 
-	abyle_output("abyle_main_frontendDaemon", "", "Frontend Group: "+frontendGroup+" ("+str(frontendGid)+")","", "green")
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "Frontend Group: "+frontendGroup+" ("+str(frontendGid)+")", "green")
+	else:
+		output.startup(".")
 
 	if not os.path.exists(fifoPath):
 		os.makedirs(fifoPath, mode=0770)
 
 	os.chown(fifoPath, frontendUid, frontendGid)
-	abyle_output("abyle_main_frontendDaemon", "", "changed ownerchip of "+fifoPath+" to "+frontendUser+":"+frontendGroup,"", "green")
+	
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "",  "changed ownerchip of "+fifoPath+" to "+frontendUser+":"+frontendGroup, "green")
+	else:
+		output.startup(".")
 
 	os.chmod(fifoPath, 0770)
-	abyle_output("abyle_main_frontendDaemon", "", "changed permissions of "+fifoPath+" to 0770", "green")
+
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "changed permissions of "+fifoPath+" to 0770", "green")
+	else:
+		output.startup(".")
 
 	if not os.path.exists(fifoPath+"/input"):
 		os.mkfifo(fifoPath+"/input") 
@@ -187,17 +205,36 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG):
 	if not os.path.exists(fifoPath+"/output"):
 		os.mkfifo(fifoPath+"/output") 
 
-	abyle_output("abyle_main_frontendDaemon", "", "created fifo's: "+fifoPath+"/input and "+fifoPath+"/output", "green")
+
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "created fifo's: "+fifoPath+"/input and "+fifoPath+"/output", "green")
+	else:
+		output.startup(".")
 
 	os.chown(fifoPath+"/input", frontendUid, frontendGid)
 	os.chown(fifoPath+"/output", frontendUid, frontendGid)
 
-	abyle_output("abyle_main_frontendDaemon", "", "changed ownerchip of fifo's to "+frontendUser+":"+frontendGroup,"", "green")
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "changed ownerchip of fifo's to "+frontendUser+":"+frontendGroup, "green")
+	else:
+		output.startup(".")
 
 	os.chmod(fifoPath+"/input", 0770)
 	os.chmod(fifoPath+"/output", 0770)
 
-	abyle_output("abyle_main_frontendDaemon", "", "changed permissions of fifo's to 0770", "green")
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "changed permissions of fifo's to 0770", "green")
+	else:
+		output.startup(".")
+
+	if not verbose:
+		con_size = string.join(os.popen("stty size").readlines())
+		arr_con_size = string.split(con_size," ")
+		size = string.atoi(arr_con_size[1])-13
+		size = size+4
+		a = string.join(os.popen("echo -n \033[$(("+str(size)+"))G && echo -n   [DONE] "))
+		output.startup(a, "blue", "yes")
+
 
 
 def main():
@@ -282,7 +319,7 @@ def main():
 	 else:
 
 		if options.daemon:
-			frontendDaemon(FWCONFIGPATH, XMLCONFIG)
+			frontendDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, LOGFILE)
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')
