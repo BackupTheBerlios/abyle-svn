@@ -50,4 +50,34 @@
     <modules>ip_nat_irc</modules>               <!-- irc nat handling -->
     <modules>ip_conntrack_irc</modules>         <!-- irc connection tracking -->
   </kernel>
+  <frontend>
+    <daemon>
+        <input>
+          <commandmap>
+                <inputcmd>restart</inputcmd>
+                <syscmd>abyle -s</syscmd>
+          </commandmap>
+          <commandmap>
+                <inputcmd>stop</inputcmd>
+                <syscmd>abyle -b</syscmd>
+          </commandmap>
+          <commandmap>
+                <inputcmd>start</inputcmd>
+                <syscmd>abyle -s</syscmd>
+          </commandmap>
+          <commandmap>
+                <inputcmd>reloadkern</inputcmd>
+                <syscmd>abyle -r</syscmd>
+          </commandmap>
+          <commandmap>
+                <inputcmd>version</inputcmd>
+                <syscmd>abyle -V</syscmd>
+          </commandmap>
+          <commandmap>
+                <inputcmd>status</inputcmd>
+                <syscmd>abyle -i</syscmd>
+          </commandmap>
+        </input>
+    </daemon>
+  </frontend>
 </root>

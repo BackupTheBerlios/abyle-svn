@@ -39,6 +39,7 @@ from xml.sax import make_parser
 # uid and gid checking
 from pwd import getpwnam
 from grp import getgrnam
+import select
 
 # check if xml is wellformed, before reading it, i'm using the saxparser for this 
 def check_well_formedness(file):
@@ -138,8 +139,9 @@ def stopfw(dryrun, verbose, LOGFILE):
 def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 
 	output = abyle_output("","","","","default", LOGFILE)
-	
-	output.startup("starting frontend daemon ")
+
+	if not verbose:	
+		output.startup("starting frontend daemon ")
 
 
 	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
@@ -199,6 +201,9 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 	else:
 		output.startup(".")
 
+	inputfifo = fifoPath+"/input"
+	outputfifo = fifoPath+"/output"
+
 	if not os.path.exists(fifoPath+"/input"):
 		os.mkfifo(fifoPath+"/input") 
 
@@ -234,6 +239,47 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 		size = size+4
 		a = string.join(os.popen("echo -n \033[$(("+str(size)+"))G && echo -n   [DONE] "))
 		output.startup(a, "blue", "yes")
+
+	valid_commands_dict = {}
+
+	cmdcnt = 0
+	tempSysCmds = global_config.getConfig("syscmd")
+	for inputcmd in global_config.getConfig("inputcmd"):
+		valid_commands_dict[inputcmd]=tempSysCmds[cmdcnt]
+		cmdcnt = cmdcnt + 1
+
+	if verbose:
+		abyle_output("abyle_main_frontendDaemon", "", "", "loaded valid input commands", "green")
+	else:
+		output.startup(".")
+
+
+	command = ""
+	while True:
+
+		ff = os.open(inputfifo, os.O_RDONLY)
+
+		while True:
+			select.select([ff], [], [])
+        		c = os.read(ff, 1)
+        		
+			if c:
+            			command = command + c
+				#print command
+				if valid_commands_dict.keys().count(command) > 0:
+					if verbose:
+						abyle_output("abyle_main_frontendDaemon", "", "", "detected valid command on input fifo: "+command, "green")
+						abyle_output("abyle_main_frontendDaemon", "", "", "executing: "+valid_commands_dict[command], "green")
+					os.system(valid_commands_dict[command]+' > '+outputfifo+' 2>&1')
+					command = ""
+					os.close(ff)
+					break
+				
+        		else:
+            			os.close(ff)
+            			break
+	
+
 
 
 
