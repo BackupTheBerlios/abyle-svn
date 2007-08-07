@@ -39,7 +39,12 @@ from xml.sax import make_parser
 # uid and gid checking
 from pwd import getpwnam
 from grp import getgrnam
+
+# fifo reading
 import select
+
+# daemon filehandles
+import resource
 
 # check if xml is wellformed, before reading it, i'm using the saxparser for this 
 def check_well_formedness(file):
@@ -128,12 +133,15 @@ def stopfw(dryrun, verbose, LOGFILE):
 	flush_chains(dryrun, "nat", LOGFILE, verbose, output)
 
 	if not verbose:
-		con_size = string.join(os.popen("stty size").readlines())
-		arr_con_size = string.split(con_size," ")
-		size = string.atoi(arr_con_size[1])-13
-		size = size+4
-		a = string.join(os.popen("echo -n \033[$(("+str(size)+"))G && echo -n   [DONE] "))
-		output.startup(a, "blue", "yes")
+		try:
+			con_size = string.join(os.popen("stty size").readlines())
+			arr_con_size = string.split(con_size," ")
+			size = string.atoi(arr_con_size[1])-13
+			size = size+4
+			a = string.join(os.popen("echo -n \033[$(("+str(size)+"))G && echo -n   [DONE] "))
+			output.startup(a, "blue", "yes")
+                except IndexError:
+                        output.startup("done", "blue", "yes")
 
 
 def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
@@ -304,7 +312,61 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 	print "daemon stopped!"
 	
 
+def realDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 
+	# first fork
+	try:
+        	pid = os.fork()
+        	if pid > 0:
+            	# exit first parent
+          		sys.exit(0)
+    	except OSError, e:
+        	print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror)
+        	sys.exit(1)
+
+	# change environment
+	os.chdir("/")   
+
+	# session leader of this new session and process group leader of the new process group
+	os.setsid()
+	os.umask(0)
+
+	# second fork, causes the second child process to be orphaned making the init process responsible for its cleanup
+
+	try:
+        	pid = os.fork()
+        	if pid > 0:
+            	# exit from second parent, print eventual PID before
+            	#print "Daemon PID %d" % pid
+            	#open(PIDFILE,'w').write("%d"%pid)
+            		sys.exit(0)
+    	except OSError, e:
+        	print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
+        	sys.exit(1)
+
+	
+	
+	# retrieve the maximum file descriptor number if there is no limit on the resource, use the default value
+	maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+	if (maxfd == resource.RLIM_INFINITY):
+		maxfd = "1024"
+
+	# close all file descriptors
+	for fd in range(0, maxfd):
+		try:
+        		os.close(fd)
+		except OSError:	# ERROR, fd wasn't open to begin with (ignored)
+			pass
+
+	# # standard input (0)	
+	os.open("/dev/null", os.O_RDWR)
+
+	# duplicate standard input to standard output and standard error.
+	os.dup2(0, 1)
+	os.dup2(0, 2)
+
+	# daemon code
+	frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE)
 
 
 def main():
@@ -389,7 +451,8 @@ def main():
 	 else:
 
 		if options.daemon:
-			frontendDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, LOGFILE)
+			realDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, LOGFILE)
+			#frontendDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, LOGFILE)
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')

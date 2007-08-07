@@ -16,7 +16,7 @@ start_abyle_daemon() {
 		echo "frontendDaemon is disabled in config."
 	else
 		echo "starting frontendDaemon."
-		abyle -D > $logfile 2>&1 &
+		abyle -D > $logfile 2>&1
 		sleep 2
 	fi
 }
