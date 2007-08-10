@@ -32,9 +32,12 @@ from abyle_output import abyle_output
 from abyle_firewall import abyle_firewall
 from abyle_execute import abyle_execute
 from abyle_config_xmlparser import abyle_config_parse
+from abyle_config_xmlwriter import abyle_config_write
 from abyle_changelog_xmlparser import abyle_changelog_parse
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
+
+#from xml.dom.minidom import parse
 
 # uid and gid checking
 from pwd import getpwnam
@@ -383,7 +386,8 @@ def main():
 	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="show verbose output of fw start/stop")
 	parser.add_option("-D", "--daemon", action="store_true", dest="daemon", default=False, help="start daemon for abyle frontend!")
 	parser.add_option("-V", "--version", action="store_true", dest="version", default=False, help="show version of pyfw modules")
-	parser.add_option("-t", "--install-ifs", action="store_true", dest="install_ifs", default=False, help="install template config for any existing interface")
+	parser.add_option("-t", "--install-interfaces-config", action="store_true", dest="install_ifs", default=False, help="install template config for any existing interface")
+	parser.add_option("-a", "--add-interface", dest="addinterface", help="add an protectable interface to abyle config")
 	parser.add_option("-p", "--config-path", dest="fwconfigpath", help="path to firewall configuration directory")
 	parser.add_option("-c", "--config-file-name", dest="xmlconfig", help="name of the configuration file")
 
@@ -417,6 +421,19 @@ def main():
 			cmdIn, cmdOut, cmdErr = os.popen3('mkdir '+FWCONFIGPATH+'.old')
 			cmdIn, cmdOut, cmdErr = os.popen3('mv '+FWCONFIGPATH+int+' '+FWCONFIGPATH+'.old/'+int)
 			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'template/interface '+FWCONFIGPATH+int)
+
+	 if options.addinterface:
+
+		global_config_writeable = abyle_config_write(FWCONFIGPATH, "default", XMLCONFIG)
+
+		tempAttributes = {}
+		tempAttributes["desc"]="eth9 test interface"
+
+		global_config_writeable.buildNewNode("interface", options.addinterface, tempAttributes)
+		global_config_writeable.AddBuildedNode("/root/protect")
+
+		sys.exit(0)
+
 		
          checkWellformed = check_well_formedness(FWCONFIGPATH+XMLCONFIG)
          if checkWellformed != "ok":
