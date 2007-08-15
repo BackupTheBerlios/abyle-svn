@@ -442,7 +442,10 @@ def main():
 
 	# parse the config file
 	 global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
-	 MAX_LOGFILE_SIZE = global_config.getConfig("max_logfile_size")
+	 try:
+	 	MAX_LOGFILE_SIZE = global_config.getConfig("max_logfile_size")
+	 except IndexError:
+	 	MAX_LOGFILE_SIZE = '1000000'
 	 try: 
 		LOGFILE = global_config.getConfig("logfile")
 		if os.path.exists(LOGFILE):
