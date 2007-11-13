@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<root>
-     <node>
-       <child gender="m">Tom Foo</child>
-       <child gender="f">Tamara Bar</child>
-     </node>
-</root>
