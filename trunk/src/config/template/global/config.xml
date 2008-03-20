@@ -52,8 +52,9 @@
   </kernel>
   <frontend>
     <daemon>
-	<daemonenabled>no</daemonenabled>
+	<daemonenabled>yes</daemonenabled>
 	<daemonlogfile>/var/log/abyled.log</daemonlogfile>
+	<temp_path>/tmp</temp_path>
         <input>
           <commandmap>
                 <inputcmd>restart</inputcmd>
@@ -79,6 +80,12 @@
                 <inputcmd>status</inputcmd>
                 <syscmd>abyle -i</syscmd>
           </commandmap>
+          <commandmap>
+           	<inputcmd>conntrack</inputcmd>
+         	<syscmd>cat /proc/net/ip_conntrack</syscmd>
+          </commandmap>
+          <commandmap>
+
         </input>
     </daemon>
   </frontend>

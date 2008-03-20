@@ -1,6 +1,7 @@
 <interface>
 
   <rules>
+    <!-- allow all by default -->
     <traffic chain="block" job="ACCEPT" state="NEW"></traffic>	
   </rules>
 
