@@ -4,7 +4,7 @@
   <modprobe>/sbin/modprobe</modprobe>
   <fwconfigpath>/etc/abyle</fwconfigpath>
   <iptflagfile>iptables_flags.xml</iptflagfile>
-  <rulesfile>rules</rulesfile>
+  <rulesfile>rules.xml</rulesfile>
   <echocmd>/bin/echo</echocmd>
   <ipv4confpath>/proc/sys/net/ipv4/conf/</ipv4confpath>
   <antispoofingfile>rp_filter</antispoofingfile>                        <!-- source validation by reversed path RFC1812 -->
