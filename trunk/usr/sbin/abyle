@@ -153,8 +153,17 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 
 	output = abyle_output("","","","","default", LOGFILE)
 
+	now = datetime.datetime.now()
+	now =  now.strftime("%Y/%m/%d %H:%M:%S")
+	abyle_output("", "", "", "","default", LOGFILE)
+	abyle_output("", "", "", "###### DAEMON STARTUP #####", "default", LOGFILE)
+	abyle_output("", "", "", "","default", LOGFILE)
+	abyle_output("", "", "", "startup time: "+now,"default", LOGFILE)
+	abyle_output("", "", "", "","default", LOGFILE)
+	
 	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
-        try:
+        
+	try:
                 fifoPath = global_config.getConfig("fifopath")
 	except IndexError:
 		fifoPath = "/var/run/abyle"
@@ -162,6 +171,14 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 	pidfile = fifoPath+"/abyled.pid"
 	if not os.path.exists(fifoPath):
 		os.makedirs(fifoPath)
+
+	if os.path.exists(pidfile):
+		f=open(pidfile, 'r')
+		running_pid = f.readline()
+		if os.path.exists('/proc/'+running_pid+'/status'):
+			abyle_output("abyle_main_frontendDaemon", "Error: Daemon already running? PID: "+running_pid,"","", "red", LOGFILE)
+			sys.exit(1)
+		f.close()
 
 	try:
 		if os.path.exists(pidfile):
