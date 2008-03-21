@@ -52,8 +52,9 @@
   </kernel>
   <frontend>
     <daemon>
-	<daemonenabled>yes</daemonenabled>
+	<daemonenabled>no</daemonenabled>
 	<daemonlogfile>/var/log/abyled.log</daemonlogfile>
+  	<max_daemonlogfile_size>1000000</max_daemonlogfile_size>                          <!-- will be removed if larger than 1M -->
 	<temp_path>/tmp</temp_path>
         <input>
           <commandmap>

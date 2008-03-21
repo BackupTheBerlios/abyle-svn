@@ -137,26 +137,21 @@ def stopfw(dryrun, verbose, LOGFILE):
 
 	if not verbose:
 		try:
-			con_size = string.join(os.popen("stty size").readlines())
+			con_size = string.join(os.popen("stty size 2>/dev/null").readlines())
 			arr_con_size = string.split(con_size," ")
 			size = string.atoi(arr_con_size[1])-13
 			size = size+4
 			a = string.join(os.popen("echo -n \033[$(("+str(size)+"))G && echo -n   [DONE] "))
 			output.startup(a, "blue", "yes")
                 except IndexError:
-                        output.startup("done", "blue", "yes")
+                        output.startup("[DONE]\n")
 
 
 def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
-
+   
    try:
 
-
 	output = abyle_output("","","","","default", LOGFILE)
-
-	if not verbose:	
-		output.startup("starting frontend daemon ")
-
 
 	global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
         try:
@@ -165,44 +160,53 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 		fifoPath = "/var/run/abyle"
 
 	pidfile = fifoPath+"/abyled.pid"
-	if os.path.exists(pidfile):
-		os.unlink(pidfile) 
+	if not os.path.exists(fifoPath):
+		os.makedirs(fifoPath)
+
+	try:
+		if os.path.exists(pidfile):
+			os.unlink(pidfile) 
+	
 		
-	pidfileHandle = open (pidfile, 'w')
-	pidfileHandle.write(str(os.getpid()))
-	pidfileHandle.close()
+		pidfileHandle = open (pidfile, 'w')
+		pidfileHandle.write(str(os.getpid()))
+		pidfileHandle.close()
+	except IOError:
+		abyle_output("abyle_main_frontendDaemon", "Error: can not create pid file in "+fifoPath,"","", "red", LOGFILE)
+		sys.exit(1)
+
 
 	try:
 		frontendUser = global_config.getConfig("frontenduser")
 	except IndexError:
-                abyle_output("abyle_main_frontendDaemon", "Error no <frontenduser> specified in global config: "+FWCONFIGPATH+XMLCONFIG,"","", "red")
+                abyle_output("abyle_main_frontendDaemon", "Error no <frontenduser> specified in global config: "+FWCONFIGPATH+XMLCONFIG,"","", "red", LOGFILE)
 		sys.exit(1)
 
 	try:
 		frontendGroup = global_config.getConfig("frontendgroup")
 	except IndexError:
-                abyle_output("abyle_main_frontendDaemon", "Error no <frontendgroup> specified in global config: "+FWCONFIGPATH+XMLCONFIG,"","", "red")
+                abyle_output("abyle_main_frontendDaemon", "Error no <frontendgroup> specified in global config: "+FWCONFIGPATH+XMLCONFIG,"","", "red", LOGFILE)
 		sys.exit(1)
 
 	try:
 		frontendUid = getpwnam(frontendUser)[2]
 	except KeyError:
-		abyle_output("abyle_main_frontendDaemon", "Frontend User: "+frontendUser+" doesn't exist.","","", "red")
+		abyle_output("abyle_main_frontendDaemon", "Frontend User: "+frontendUser+" doesn't exist.","","", "red", LOGFILE)
 		sys.exit(1)
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "Frontend User: "+frontendUser+" ("+str(frontendUid)+")", "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "Frontend User: "+frontendUser+" ("+str(frontendUid)+")", "green", LOGFILE)
 	else:
 		output.startup(".")
 
 	try:
 		frontendGid = getgrnam(frontendGroup)[2]
 	except KeyError:
-		abyle_output("abyle_main_frontendDaemon", "Frontend Group: "+frontendGroup+" doesn't exist.","","", "red")
+		abyle_output("abyle_main_frontendDaemon", "Frontend Group: "+frontendGroup+" doesn't exist.","","", "red", LOGFILE)
 		sys.exit(1)
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "Frontend Group: "+frontendGroup+" ("+str(frontendGid)+")", "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "Frontend Group: "+frontendGroup+" ("+str(frontendGid)+")", "green", LOGFILE)
 	else:
 		output.startup(".")
 
@@ -212,14 +216,14 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 	os.chown(fifoPath, frontendUid, frontendGid)
 	
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "",  "changed ownerchip of "+fifoPath+" to "+frontendUser+":"+frontendGroup, "green")
+		abyle_output("abyle_main_frontendDaemon", "", "",  "changed ownerchip of "+fifoPath+" to "+frontendUser+":"+frontendGroup, "green", LOGFILE)
 	else:
 		output.startup(".")
 
 	os.chmod(fifoPath, 0770)
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "changed permissions of "+fifoPath+" to 0770", "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "changed permissions of "+fifoPath+" to 0770", "green", LOGFILE)
 	else:
 		output.startup(".")
 
@@ -234,7 +238,7 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "created fifo's: "+fifoPath+"/input and "+fifoPath+"/output", "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "created fifo's: "+fifoPath+"/input and "+fifoPath+"/output", "green", LOGFILE)
 	else:
 		output.startup(".")
 
@@ -242,7 +246,7 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 	os.chown(fifoPath+"/output", frontendUid, frontendGid)
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "changed ownerchip of fifo's to "+frontendUser+":"+frontendGroup, "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "changed ownerchip of fifo's to "+frontendUser+":"+frontendGroup, "green", LOGFILE)
 	else:
 		output.startup(".")
 
@@ -250,7 +254,7 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 	os.chmod(fifoPath+"/output", 0770)
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "changed permissions of fifo's to 0770", "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "changed permissions of fifo's to 0770", "green", LOGFILE)
 	else:
 		output.startup(".")
 
@@ -274,7 +278,7 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 		cmdcnt = cmdcnt + 1
 
 	if verbose:
-		abyle_output("abyle_main_frontendDaemon", "", "", "loaded valid input commands", "green")
+		abyle_output("abyle_main_frontendDaemon", "", "", "loaded valid input commands", "green", LOGFILE)
 	else:
 		output.startup(".")
 
@@ -293,8 +297,8 @@ def frontendDaemon(FWCONFIGPATH, XMLCONFIG, verbose, LOGFILE):
 				print command
 				if valid_commands_dict.keys().count(command) > 0:
 					if verbose:
-						abyle_output("abyle_main_frontendDaemon", "", "", "detected valid command on input fifo: "+command, "green")
-						abyle_output("abyle_main_frontendDaemon", "", "", "executing: "+valid_commands_dict[command], "green")
+						abyle_output("abyle_main_frontendDaemon", "", "", "detected valid command on input fifo: "+command, "green", LOGFILE)
+						abyle_output("abyle_main_frontendDaemon", "", "", "executing: "+valid_commands_dict[command], "green", LOGFILE)
 					os.system(valid_commands_dict[command]+' > '+outputfifo+' 2>&1')
 					command = ""
 					os.close(ff)
@@ -427,7 +431,7 @@ def main():
 		global_config_writeable = abyle_config_write(FWCONFIGPATH, "default", XMLCONFIG)
 
 		tempAttributes = {}
-		tempAttributes["desc"]="eth9 test interface"
+		tempAttributes["desc"]=""
 
 		global_config_writeable.buildNewNode("interface", options.addinterface, tempAttributes)
 		global_config_writeable.AddBuildedNode("/root/protect")
@@ -444,8 +448,10 @@ def main():
 	 global_config = abyle_config_parse(FWCONFIGPATH, "default", XMLCONFIG)
 	 try:
 	 	MAX_LOGFILE_SIZE = global_config.getConfig("max_logfile_size")
+	 	MAX_DAEMONLOGFILE_SIZE = global_config.getConfig("max_daemonlogfile_size")
 	 except IndexError:
 	 	MAX_LOGFILE_SIZE = '1000000'
+	 	MAX_DAEMONLOGFILE_SIZE = '1000000'
 	 try: 
 		LOGFILE = global_config.getConfig("logfile")
 		if os.path.exists(LOGFILE):
@@ -455,6 +461,17 @@ def main():
 
 	 except IndexError:
 		LOGFILE = '/dev/null'
+	 
+	 try: 
+		DAEMONLOGFILE = global_config.getConfig("daemonlogfile")
+		if os.path.exists(DAEMONLOGFILE):
+			DAEMONLOGFILE_size = os.path.getsize(DAEMONLOGFILE)
+			if long(DAEMONLOGFILE_size) > long(MAX_DAEMONLOGFILE_SIZE):
+				os.remove(DAEMONLOGFILE)
+
+	 except IndexError:
+		DAEMONLOGFILE = '/dev/null'
+
 	 RULESFILE =  global_config.getConfig("rulesfile")
 	 KERNELMODULES  =  global_config.getConfig("modules")
 	 PROTECTED_INTERFACES = global_config.getConfig("interface")
@@ -471,8 +488,10 @@ def main():
 	 else:
 
 		if options.daemon:
-			realDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, LOGFILE)
-			#frontendDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, LOGFILE)
+			output = abyle_output("","","","","default", DAEMONLOGFILE)
+			output.startup("starting frontend daemon . . .") 
+			realDaemon(FWCONFIGPATH, XMLCONFIG, True, DAEMONLOGFILE)
+			#frontendDaemon(FWCONFIGPATH, XMLCONFIG, options.verbose, DAEMONLOGFILE)
 	
 		if options.statusfw:
 			cmdIn, cmdOut, cmdErr = os.popen3(IPTABLES+' -v -L')
