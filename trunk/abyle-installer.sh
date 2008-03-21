@@ -36,12 +36,12 @@ install-interfaces() {
   for interface in $networkInterfaces; do
 	tempCnt=$[$tempCnt + 1]
 	if [ "$tempCnt" -eq "1" ]; then
-		if [ "$interface" -eq "sit0" ]; then
+		if [ "$interface" = "sit0" ]; then
 			interface_prefix='<interface desc="" excluded="yes">'
 		fi
 		interfacesXmlString=$interface_prefix$interface$interfaces_suffix
 	else
-		if [ "$interface" -eq "sit0" ]; then
+		if [ "$interface" = "sit0" ]; then
 			interface_prefix='<interface desc="" excluded="yes">'
 		fi
 		interfacesXmlString=$interfacesXmlString$interface_del$interface_prefix$interface$interfaces_suffix
@@ -476,6 +476,7 @@ install-abyle() {
 
 		echo "copying default config to: $configpath"
 		mkdir $configpath
+		mkdir $configpath/interfaces
 		cp -r $srcpath/config/$global_templatedir/* $configpath/
 
 		cp -r $srcpath/config/$templatedir $configpath/
