@@ -416,11 +416,11 @@ def main():
 		abyle_output("cli_option_parser", "", "", "copy template config for all existing interfaces! existing configs will be moved to "+FWCONFIGPATH+".old" )
 		EXISTING_INTERFACES = getAllInterfaces()
 		for int in EXISTING_INTERFACES:
-			abyle_output("cli_option_parser", "", "", "copy template/interface to "+int)
+			abyle_output("cli_option_parser", "", "", "copy default config to "+int)
 			cmdIn, cmdOut, cmdErr = os.popen3('rm -rf '+FWCONFIGPATH+'.old')
 			cmdIn, cmdOut, cmdErr = os.popen3('mkdir '+FWCONFIGPATH+'.old')
-			cmdIn, cmdOut, cmdErr = os.popen3('mv '+FWCONFIGPATH+int+' '+FWCONFIGPATH+'.old/'+int)
-			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'template/interface '+FWCONFIGPATH+int)
+			cmdIn, cmdOut, cmdErr = os.popen3('mv '+FWCONFIGPATH+'interfaces/'+int+' '+FWCONFIGPATH+'.old/'+int)
+			cmdIn, cmdOut, cmdErr = os.popen3('cp -r '+FWCONFIGPATH+'template/interface '+FWCONFIGPATH+'interfaces/'+int)
 
 	 if options.addinterface:
 

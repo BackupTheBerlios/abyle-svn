@@ -84,8 +84,6 @@
            	<inputcmd>conntrack</inputcmd>
          	<syscmd>cat /proc/net/ip_conntrack</syscmd>
           </commandmap>
-          <commandmap>
-
         </input>
     </daemon>
   </frontend>

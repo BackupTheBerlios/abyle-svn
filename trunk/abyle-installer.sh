@@ -26,7 +26,7 @@ toUpper() {
 install-interfaces() {
   networkInterfaces=`cat /proc/net/dev  | grep ':' | awk -F: '{ print $1 }' |  awk '{ print $1 }'`
 
-  interface_prefix='<interface desc="">'
+  interface_prefix='<interface desc="" excluded="no">'
   interfaces_suffix='</interface>'
   interface_del="\n"
 
@@ -36,8 +36,14 @@ install-interfaces() {
   for interface in $networkInterfaces; do
 	tempCnt=$[$tempCnt + 1]
 	if [ "$tempCnt" -eq "1" ]; then
-		interfacesXmlString=$interface_prefix$interface$interfaces_suffix	
+		if [ "$interface" -eq "sit0" ]; then
+			interface_prefix='<interface desc="" excluded="yes">'
+		fi
+		interfacesXmlString=$interface_prefix$interface$interfaces_suffix
 	else
+		if [ "$interface" -eq "sit0" ]; then
+			interface_prefix='<interface desc="" excluded="yes">'
+		fi
 		interfacesXmlString=$interfacesXmlString$interface_del$interface_prefix$interface$interfaces_suffix
 	fi
   done
@@ -61,8 +67,8 @@ echo
 echo "the next steps:"
 echo "1)    $progname -t  --->>  install template config which permits any traffic flow, for any existing interface"
 echo "2)    look at your config directory for creating your rules e.g. for eth0:"
-echo "      rulesfile: $configpath/eth0/rules"
-echo "      interface config: $configpath/eth0/config.xml"
+echo "      rulesfile: $configpath/interfaces/eth0/rules.xml"
+echo "      interface config: $configpath/interfaces/eth0/config.xml"
 echo "3)    <path to your runlevel scripts>/$progname (start|stop|restart) --> for starting at system boot"
 
 }
@@ -456,6 +462,7 @@ install-abyle() {
 
 		echo "copying default config to: $configpath"
 		mkdir $configpath
+		mkdir $configpath/interfaces
 		cp -r $srcpath/config/$global_templatedir/* $configpath/
 
 		
