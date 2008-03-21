@@ -1,0 +1,12 @@
+Template: abyle-firewall/exclude
+Type: boolean
+Default: false
+Description: Do you want to exclude some interfaces?
+ Do you want to exclude some interfaces from iptables (abyle) protection?
+ Every excluded interface will not be secured by abyle, 
+ all traffic will be allowed on this interfaces (unsecure).
+
+Template: abyle-firewall/interfaces
+Type: multiselect
+Choices: ${interfaces}
+Description: Select interfaces for exclusion

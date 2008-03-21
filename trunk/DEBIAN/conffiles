@@ -1,0 +1,7 @@
+/etc/abyle/template/global/config.xml
+/etc/abyle/template/global/changelog.xml
+/etc/abyle/template/global/rules
+/etc/abyle/template/global/iptables_flags.xml
+/etc/abyle/template/interface/config.xml
+/etc/abyle/template/interface/rules
+/etc/init.d/abyle

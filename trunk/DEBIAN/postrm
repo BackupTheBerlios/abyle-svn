@@ -1,0 +1,3 @@
+#!/bin/sh
+rm /etc/init.d/abyle
+update-rc.d abyle remove
