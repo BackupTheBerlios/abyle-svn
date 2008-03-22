@@ -35,8 +35,8 @@ do
 	mv /etc/abyle-firewall/config.xml_tmp /etc/abyle-firewall/config.xml
 done
 
-if [ "ipv4forward" = true ]; then
-	cat /etc/abyle-firewall/config.xml | awk '{sub(/<ipv4forward>no<\/ipv4forward>/,"<ipv4forward>yes<\/ipv4forward>");print}' > /etc/abyle-firewall/config.xml_tmp
+if [ "$ipv4forward" = true ]; then
+	cat /etc/abyle-firewall/config.xml | awk '{sub(/<ipv4forward>no<\/ipv4forward>/,"<ipv4forward>yes<\/ipv4forward>");print}' > /etc/abyle-firewall/config.xml_tmp 2>/dev/null
 	mv /etc/abyle-firewall/config.xml_tmp /etc/abyle-firewall/config.xml
 fi
 
