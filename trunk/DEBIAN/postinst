@@ -32,4 +32,4 @@ do
 	mv /etc/abyle-firewall/config.xml_tmp /etc/abyle-firewall/config.xml
 done
 
-abyle-firewall -t >/var/log/abyle.log
+/usr/sbin/abyle-firewall -t >/var/log/abyle.log
