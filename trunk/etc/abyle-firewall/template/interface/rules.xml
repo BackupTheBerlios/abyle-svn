@@ -1,0 +1,20 @@
+<interface>
+
+  <rules>
+    <!-- allow all by default -->
+    <traffic chain="block" job="ACCEPT" state="NEW"></traffic>	
+  </rules>
+
+  <portforwarding>
+  </portforwarding>
+
+  <transparentproxy>
+  </transparentproxy>
+
+  <logging>
+  </logging>
+
+  <masquerading>
+  </masquerading>
+
+</interface>
