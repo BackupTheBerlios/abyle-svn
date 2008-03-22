@@ -1,7 +1,7 @@
 Template: abyle-firewall/exclude
 Type: boolean
-Default: false
-Description: Do you want to exclude some interfaces?
+Default: true
+Description: Do you want to exclude some interfaces (say yes if unsure)?
  Do you want to exclude some interfaces from iptables (abyle) protection?
  Every excluded interface will not be secured by abyle, 
  all traffic will be allowed on this interfaces (unsecure).
@@ -19,3 +19,5 @@ Template: abyle-firewall/ipv4forward
 Type: boolean
 Default: false
 Description: Do you want to enable IPv4 forwarding (routing)?
+ Enable IPv4 forwarding if you want to use masquerading (nat) or if 
+ you want to use this host as router.

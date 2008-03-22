@@ -43,4 +43,4 @@ fi
 
 
 
-/usr/sbin/abyle-firewall -t >/var/log/abyle.log
+/usr/sbin/abyle-firewall -t >/var/log/abyle.log || true
