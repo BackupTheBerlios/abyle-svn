@@ -1,5 +1,4 @@
 /etc/abyle-firewall/template/global/config.xml
-/etc/abyle-firewall/template/global/changelog.xml
 /etc/abyle-firewall/template/global/rules.xml
 /etc/abyle-firewall/template/global/iptables_flags.xml
 /etc/abyle-firewall/template/interface/config.xml
