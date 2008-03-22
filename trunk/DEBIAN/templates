@@ -14,3 +14,8 @@ Description: Select interfaces for exclusion
 Template: abyle-firewall/protectedinterfaces
 Type: multiselect
 Description: Protected Interfaces
+
+Template: abyle-firewall/ipv4forward
+Type: boolean
+Default: false
+Description: Do you want to enable IPv4 forwarding (routing)?

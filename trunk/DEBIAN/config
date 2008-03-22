@@ -51,12 +51,16 @@ if  [ $RET = true ]; then
 	db_input high abyle-firewall/interfaces  || true
 	db_go || true
 
+	db_input high abyle-firewall/ipv4forward || true
+	db_go || true
+
 	db_get abyle-firewall/interfaces
 
 	protectedinterfaces=""
 
 	for exclinterface in $RET
 	do
+			exclinterface=`echo $exclinterface | awk '{sub(/,/,"");print}'`
 			interfacesString=`echo $interfacesString | awk '{sub(/'$exclinterface', /,"");print}'`
 	done
 
