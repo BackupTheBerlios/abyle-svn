@@ -1,7 +1,7 @@
 <root>
-	<antispoofing>no</antispoofing>
+	<antispoofing>yes</antispoofing>
 	<logging>no</logging>
-	<allowping>no</allowping>
+	<allowping>yes</allowping>
 	<masquerading>no</masquerading>
 	<portforwarding>no</portforwarding>
 	<transparent_proxy>no</transparent_proxy>

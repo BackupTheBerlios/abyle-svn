@@ -10,3 +10,7 @@ Template: abyle-firewall/interfaces
 Type: multiselect
 Choices: ${interfaces}
 Description: Select interfaces for exclusion
+
+Template: abyle-firewall/protectedinterfaces
+Type: multiselect
+Description: Protected Interfaces

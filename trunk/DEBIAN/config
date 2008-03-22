@@ -5,7 +5,9 @@
 db_version 2.0
 db_title abyle-firewall
 
-db_fset abyle-firewall/exclude seen false
+if [ "$1" == "reconfigure" ]; then
+	db_fset abyle-firewall/exclude seen false
+fi
 db_input high abyle-firewall/exclude  || true
 db_go || true
 
@@ -41,8 +43,26 @@ if  [ $RET = true ]; then
 	done
 
 	db_subst abyle-firewall/interfaces interfaces $interfacesString
-	db_fset abyle-firewall/interfaces seen false
+
+	if [ "$1" == "reconfigure" ]; then
+		db_fset abyle-firewall/interfaces seen false
+	fi
 	db_set abyle-firewall/interfaces "lo, sit0"
 	db_input high abyle-firewall/interfaces  || true
 	db_go || true
+
+	db_get abyle-firewall/interfaces
+
+	protectedinterfaces=""
+
+	for exclinterface in $RET
+	do
+			interfacesString=`echo $interfacesString | awk '{sub(/'$exclinterface', /,"");print}'`
+	done
+
+	protectedinterfaces=$interfacesString	
+	#db_register abyle-firewall/protectedinterfaces 
+	db_set abyle-firewall/protectedinterfaces $protectedinterfaces
+	db_go || true
+
 fi

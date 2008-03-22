@@ -1,2 +1,35 @@
-#!/bin/sh
-update-rc.d abyle defaults
+#!/bin/sh -e
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+db_version 2.0
+db_title abyle-firewall
+
+
+cp -a /etc/abyle-firewall/template/global/* /etc/abyle-firewall >/dev/null || true
+
+update-rc.d abyle-firewall defaults  >/dev/null || true
+
+db_get abyle-firewall/interfaces
+excludedinterfaces=$RET
+
+db_get abyle-firewall/protectedinterfaces
+protectedinterfaces=$RET
+
+for interface in $protectedinterfaces
+do
+	interface=`echo $interface | awk '{sub(/,/,"");print}'`
+	interface='<interface desc="'$interface'" excluded="no">'$interface'</interface>'
+	cat /etc/abyle-firewall/config.xml | sed "/<protect>/a $interface" > /etc/abyle-firewall/config.xml_tmp
+	mv /etc/abyle-firewall/config.xml_tmp /etc/abyle-firewall/config.xml
+done
+
+for interface in $excludedinterfaces
+do
+	interface=`echo $interface | awk '{sub(/,/,"");print}'`
+	interface='<interface desc="'$interface'" excluded="yes">'$interface'</interface>'
+	cat /etc/abyle-firewall/config.xml | sed "/<protect>/a $interface" > /etc/abyle-firewall/config.xml_tmp
+	mv /etc/abyle-firewall/config.xml_tmp /etc/abyle-firewall/config.xml
+done
+
+abyle-firewall -t >/var/log/abyle.log

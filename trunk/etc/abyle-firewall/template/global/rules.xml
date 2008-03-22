@@ -3,6 +3,8 @@
   <blockruleshead blockchain="block">
 
     <traffic chain="block" job="ACCEPT" state="ESTABLISHED,RELATED"></traffic>	
+    <!-- log every packet which passes the block chain -->
+    	<!-- <traffic chain="block" job="LOG"></traffic> -->
 
   </blockruleshead>
 

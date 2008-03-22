@@ -422,7 +422,7 @@ def main():
 	 if options.fwconfigpath:
 	  	FWCONFIGPATH = options.fwconfigpath
 	 else:
-		FWCONFIGPATH="/etc/abyle/"
+		FWCONFIGPATH="/etc/abyle-firewall/"
 
 	 if options.xmlconfig:
 		XMLCONFIG = options.xmlconfig
@@ -491,7 +491,12 @@ def main():
 
 	 RULESFILE =  global_config.getConfig("rulesfile")
 	 KERNELMODULES  =  global_config.getConfig("modules")
-	 PROTECTED_INTERFACES = global_config.getConfig("interface")
+	 try: 
+	 	PROTECTED_INTERFACES = global_config.getConfig("interface")
+	 except IndexError:
+                abyle_output("","","","no interfaces to protect to, please specify interfaces in the global config.xml or run abyle-firewall -t", "red")
+		sys.exit(1)
+	 	
 	 EXCLUDED_INTERFACES = global_config.getConfig("excluded_interfaces")
 	 MODPROBE = global_config.getConfig("modprobe")
 	 IPTABLES = global_config.getConfig("iptables")

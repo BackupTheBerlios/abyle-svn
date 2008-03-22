@@ -1,3 +1,5 @@
 #!/bin/sh
-rm /etc/init.d/abyle
-update-rc.d abyle remove
+rm /etc/init.d/abyle-firewall
+update-rc.d abyle-firewall remove
+
+rm -rf /usr/lib/python2.4/site-packages/abyle-firewall

@@ -2,7 +2,7 @@
 <root>
   <iptables>/sbin/iptables</iptables>
   <modprobe>/sbin/modprobe</modprobe>
-  <fwconfigpath>/etc/abyle</fwconfigpath>
+  <fwconfigpath>/etc/abyle-firewall</fwconfigpath>
   <iptflagfile>iptables_flags.xml</iptflagfile>
   <rulesfile>rules.xml</rulesfile>
   <echocmd>/bin/echo</echocmd>
