@@ -6,7 +6,12 @@ db_version 2.0
 db_title abyle-firewall
 
 
-cp -a /etc/abyle-firewall/template/global/* /etc/abyle-firewall >/dev/null || true
+if [ ! -f /etc/abyle-firewall/config.xml ]; then
+	cp -a /etc/abyle-firewall/template/global/config.xml /etc/abyle-firewall >/dev/null || true
+fi
+if [ ! -f /etc/abyle-firewall/rules.xml ]; then
+	cp -a /etc/abyle-firewall/template/global/rules.xml /etc/abyle-firewall >/dev/null || true
+fi
 
 update-rc.d abyle-firewall defaults  >/dev/null || true
 
@@ -42,5 +47,6 @@ fi
 
 
 
-
-/usr/sbin/abyle-firewall -t >/var/log/abyle.log || true
+if [ ! -d /etc/abyle-firewall ]; then
+	/usr/sbin/abyle-firewall -t >/var/log/abyle.log || true
+fi
