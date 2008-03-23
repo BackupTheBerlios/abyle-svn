@@ -59,27 +59,27 @@
         <input>
           <commandmap>
                 <inputcmd>restart</inputcmd>
-                <syscmd>abyle -s</syscmd>
+                <syscmd>abyle-firewall -r</syscmd>
           </commandmap>
           <commandmap>
                 <inputcmd>stop</inputcmd>
-                <syscmd>abyle -b</syscmd>
+                <syscmd>abyle-firewall -b</syscmd>
           </commandmap>
           <commandmap>
                 <inputcmd>start</inputcmd>
-                <syscmd>abyle -s</syscmd>
+                <syscmd>abyle-firewall -s</syscmd>
           </commandmap>
           <commandmap>
                 <inputcmd>reloadkern</inputcmd>
-                <syscmd>abyle -r</syscmd>
+                <syscmd>abyle-firewall -m</syscmd>
           </commandmap>
           <commandmap>
                 <inputcmd>version</inputcmd>
-                <syscmd>abyle -V</syscmd>
+                <syscmd>abyle-firewall -V</syscmd>
           </commandmap>
           <commandmap>
                 <inputcmd>status</inputcmd>
-                <syscmd>abyle -i</syscmd>
+                <syscmd>abyle-firewall -i</syscmd>
           </commandmap>
           <commandmap>
            	<inputcmd>conntrack</inputcmd>
