@@ -55,7 +55,7 @@
 	<daemonenabled>no</daemonenabled>
 	<daemonlogfile>/var/log/abyled.log</daemonlogfile>
   	<max_daemonlogfile_size>1000000</max_daemonlogfile_size>                          <!-- will be removed if larger than 1M -->
-	<temp_path>/tmp</temp_path>
+	<temp_path>/tmp/abyle-frontend</temp_path>
         <input>
           <commandmap>
                 <inputcmd>restart</inputcmd>
@@ -84,6 +84,10 @@
           <commandmap>
            	<inputcmd>conntrack</inputcmd>
          	<syscmd>cat /proc/net/ip_conntrack</syscmd>
+          </commandmap>
+          <commandmap>
+           	<inputcmd>copy_config</inputcmd>
+         	<syscmd>cp_command</syscmd>
           </commandmap>
         </input>
     </daemon>
