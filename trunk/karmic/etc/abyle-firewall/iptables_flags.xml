@@ -38,7 +38,6 @@
 	<flag index="11">
 		<cfgname cli_switch="--destination" value="yes">destination</cfgname>
 	</flag>
-
 	<flag index="12">
 		<cfgname cli_switch="--dport" value="yes">destination-port</cfgname>
 	</flag>
@@ -88,5 +87,8 @@
                 <subflag cli_switch="--set" value="no">set</subflag>
         </flag>
 
+	<flag index="22">
+		<cfgname cli_switch="--destination" value="yes">incoming_destination</cfgname>
+	</flag>
 
 </flags>
