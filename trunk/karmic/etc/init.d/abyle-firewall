@@ -1,5 +1,13 @@
 #! /bin/bash
-
+### BEGIN INIT INFO
+# Provides:          abyle-firewall
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: abyle-firewall-script
+# Description:       Abyle-IPTables-Firewall-Script
+### END INIT INFO
 
 export globalconfig="/etc/abyle-firewall/config.xml"
 export fifodir=`cat $globalconfig |grep "<fifopath>" | sed s/"<fifopath>"// | sed s/"<\/fifopath>"// | awk '{sub(/^[ \t]+/, ""); print}'`
