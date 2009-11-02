@@ -20,12 +20,12 @@ if  [ $RET = true ]; then
 
 	tempCnt1=0
 	for interface in $networkInterfaces; do
-      	  tempCnt1=$[$tempCnt1 + 1]
+      	  tempCnt1=`expr $tempCnt1 + 1`
 	done
 
 	tempCnt=0
 	for interface in $networkInterfaces; do
-      	  tempCnt=$[$tempCnt + 1]
+      	  tempCnt=`expr $tempCnt + 1`
       	  if [ "$tempCnt" -eq "$tempCnt1" ]; then
       	          if [ "$tempCnt" -eq "1" ]; then
       	                  interfacesString="$interface"

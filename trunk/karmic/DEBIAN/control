@@ -1,5 +1,5 @@
 Package: abyle-firewall
-Version: 1.0.0-1
+Version: 1.0.1
 Section: net
 Priority: optional
 Architecture: i386
